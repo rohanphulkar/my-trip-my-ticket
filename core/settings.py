@@ -96,7 +96,6 @@ DATABASES = {
        'PASSWORD':  config("DB_PASSWORD"),
        'HOST':  config("DB_HOST"),
        'PORT':  config("DB_PORT"),
-       'OPTIONS': {'ssl': {'ca': config('MYSQL_ATTR_SSL_CA')}}
    }
 }
 
