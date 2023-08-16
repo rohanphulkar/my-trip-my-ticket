@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import User
-
+from .password_validator import CustomPasswordField
 class RegistrationSerializer(serializers.ModelSerializer):
+    password = CustomPasswordField()
     password2 = serializers.CharField(style={'input_type': 'password'},write_only=True)
 
     class Meta:

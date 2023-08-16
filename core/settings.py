@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
+    'admin_argon.apps.AdminArgonConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'accounts',
     'rest_framework',
     'corsheaders',
+    'travel',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -158,6 +160,8 @@ REST_FRAMEWORK = {
      'DEFAULT_PERMISSION_CLASSES':(
         'rest_framework.permissions.AllowAny',
     ),
+
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
  
 }
 
@@ -170,3 +174,5 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+
+LOGIN_REDIRECT_URL = '/'
