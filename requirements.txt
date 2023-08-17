@@ -1,5 +1,7 @@
-django-cors-headers
 django
+django-admin-volt
+django-cors-headers
+django-filter
 django-jazzmin
 djangorestframework-simplejwt
 gunicorn
@@ -7,4 +9,7 @@ mysqlclient
 pillow
 pip-chill
 python-decouple
+pyyaml
+stripe
+uritemplate
 uuid
