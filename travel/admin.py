@@ -45,9 +45,6 @@ class CarAdmin(admin.ModelAdmin):
 class AdImageAdmin(admin.ModelAdmin):
     pass
 
-@admin.register(UserItinerary)
-class UserItineraryAdmin(admin.ModelAdmin):
-    list_display = ('user', 'tour', 'date', 'time')
 
 @admin.register(CarType)
 class CarTypeAdmin(admin.ModelAdmin):
