@@ -1,12 +1,15 @@
 from rest_framework.response import Response
 from .models import User
-from .serializers import RegistrationSerializer
+from .serializers import RegistrationSerializer,UserSerializer
 from rest_framework import status
 from rest_framework.views import APIView
 import uuid
 from .helper import send_password_reset_email
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
+from .serializers import EditProfileSerializer
+from .token import MyTokenObtainPairSerializer
+from rest_framework_simplejwt.exceptions import InvalidToken
 
 class RegistrationView(APIView):
     def post(self, request):
@@ -15,6 +18,7 @@ class RegistrationView(APIView):
             serializer.save()
             return Response({'success':'registration successful'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class ForgotPasswordView(APIView):
@@ -68,3 +72,30 @@ class ChangePasswordView(APIView):
         user.set_password(new_password)
         user.save()
         return Response({'success':'Your password has been changed'}, status=status.HTTP_200_OK)
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        user = User.objects.get(id=request.user.id)
+        serializer = UserSerializer(user,many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        user = request.user
+        serializer = EditProfileSerializer(user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CheckTokenValidityView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return Response({'message': 'Token is valid.'})
+        except InvalidToken:
+            return Response({'message': 'Token is not valid.'}, status=status.HTTP_400_BAD_REQUEST)

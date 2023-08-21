@@ -1,6 +1,7 @@
 from django.db import models
 from accounts.models import User
 import uuid
+from shortuuid.django_fields import ShortUUIDField
 
 class Tour(models.Model):
     id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
@@ -15,6 +16,17 @@ class Tour(models.Model):
     favorites = models.PositiveIntegerField(default=0)
     total_slots = models.PositiveIntegerField()
     available_slots = models.PositiveIntegerField()
+
+
+    def __str__(self):
+        return self.title
+
+class TourImage(models.Model):
+    tour = models.ForeignKey(Tour,on_delete=models.CASCADE,related_name='tour_images')
+    image = models.ImageField(upload_to='tour_images/')
+
+    def __str__(self):
+        return f"Image for {self.tour.title}"
 
 
 class Hotel(models.Model):
@@ -43,6 +55,17 @@ class Hotel(models.Model):
     total_rooms = models.PositiveIntegerField()
     available_rooms = models.PositiveIntegerField()
 
+
+    def __str__(self):
+        return self.name
+    
+class HotelImage(models.Model):
+    hotel = models.ForeignKey(Hotel,on_delete=models.CASCADE,related_name='hotel_images')
+    image = models.ImageField(upload_to='hotel_images/')
+
+    def __str__(self):
+        return f"Image for {self.hotel.name}"
+
 class HotelAmenity(models.Model):
     id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
     name = models.CharField(max_length=50, unique=True)
@@ -53,6 +76,9 @@ class HotelAmenity(models.Model):
 class CarType(models.Model):
     id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
     type = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.type
 
 class Car(models.Model):
     id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
@@ -75,6 +101,16 @@ class Car(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2,default=0)
     total_cars = models.PositiveIntegerField()
     available_cars = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.name
+
+class CarImage(models.Model):
+    car = models.ForeignKey(Car,on_delete=models.CASCADE,related_name='car_images')
+    image = models.ImageField(upload_to='car_images/')
+
+    def __str__(self):
+        return f"Image for {self.car.model}"
 
 class AdImage(models.Model):
     id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
@@ -104,7 +140,7 @@ class Booking(models.Model):
         ('paid','Paid'),
         ('failed','Failed')
     )
-    id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
+    id = ShortUUIDField(alphabet="0123456789",primary_key=True,length=8,max_length=10)
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     tour = models.ForeignKey(Tour,on_delete=models.CASCADE,blank=True,null=True)
     hotel = models.ForeignKey(Hotel,on_delete=models.CASCADE,blank=True,null=True)
@@ -114,5 +150,8 @@ class Booking(models.Model):
     payment_status = models.CharField(max_length=20,choices=PAYMENT_STATUS_CHOICES,default='pending')
     payment_amount = models.DecimalField(max_digits=10, decimal_places=2)
     booking_date = models.DateTimeField(auto_now_add=True)
-    check_in_date = models.DateField()
-    check_out_date = models.DateField()
+    check_in_date = models.DateField(blank=True,null=True)
+    check_out_date = models.DateField(blank=True,null=True)
+
+    def __str__(self):
+        return self.user.email

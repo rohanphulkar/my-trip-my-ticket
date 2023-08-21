@@ -7,11 +7,12 @@ from .serializers import *
 from .models import *
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import TourPriceFilter
-import stripe
 from decouple import config
-from django.conf import settings
-from django.core.mail import send_mail
-stripe.api_key = config('STRIPE_SECRET_KEY')
+import razorpay
+import json
+from .helper import send_booking_confirmation_email,send_booking_cancellation_email
+
+client = razorpay.Client(auth=(config('RZP_KEY'), config('RZP_SECRET')))
 
 class TourListView(generics.ListAPIView):
     queryset = Tour.objects.all()
@@ -32,7 +33,7 @@ class BookingListView(generics.ListAPIView):
     serializer_class = BookingSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['user', 'tour', 'status']
+    filterset_fields = ['user', 'tour','hotel','car', 'status']
     ordering_fields = ['booking_date', 'check_in_date', 'check_out_date']
 
 class BookingDetailsView(generics.RetrieveAPIView):
@@ -61,8 +62,6 @@ class CarListView(generics.ListAPIView):
 class CarDetailsView(generics.RetrieveAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
-
-
 
 class AdImageView(generics.ListAPIView):
     queryset = AdImage.objects.all()
@@ -104,74 +103,82 @@ class PaymentView(APIView):
         except package_model.DoesNotExist:
             return Response({'error': 'Package not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        booking = Booking.objects.create(
-            user = user,
-            tour=None if package_type != 'tour' else package_instance,
-            hotel=None if package_type != 'hotel' else package_instance,
-            car=None if package_type != 'car' else package_instance,
-            payment_amount = package_instance.price
-        )
-
+        
         try:
-
-            session = stripe.checkout.Session.create(
-                success_url = settings.FRONTEND_URL + '/success',
-                cancel_url = settings.FRONTEND_URL + '/cancel',
-                payment_method_types = ['card'],
-                line_items=[
-                    {
-                        'price_data': {
-                            'currency': 'inr',
-                            'unit_amount': int(booking.payment_amount * 100),  # Amount in cents
-                            'product_data': {
-                                'name': f'Booking #{booking.id}',
-                            },
-                        },
-                        'quantity': 1,
-                    },
-                ],
-                mode='payment',
+            payment = client.order.create({
+                "amount":int(package_instance.price * 100),
+                "currency":"INR",
+                "payment_capture":"1"
+            })
+            
+            booking = Booking.objects.create(
+                user = user,
+                tour=None if package_type != 'tour' else package_instance,
+                hotel=None if package_type != 'hotel' else package_instance,
+                car=None if package_type != 'car' else package_instance,
+                payment_amount = package_instance.price,
+                payment_id = payment['id']
             )
 
-            booking.payment_id = session.id
-            booking.save()
+            serializer = BookingSerializer(booking,many=False)
 
-            return redirect(session.url,status=status.HTTP_303_SEE_OTHER)
+            data = {
+                'payment':payment,
+                "booking":serializer.data
+            }
+            return Response(data,status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({'error':e},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error':str(e)},status=status.HTTP_400_BAD_REQUEST)
 
 class PaymentConfirmationView(APIView):
     def post(self,request):
-        payment_id = request.data.get('payment_id')
+        try:
+            res = json.loads(request.data['response'])
+            
+            global ord_id
+            global raz_pay_id
+            global raz_signature
 
-        try:
-            booking = Booking.objects.get(payment_id=payment_id)
-        except Booking.DoesNotExist:
-            return Response({'error':'Booking not found'},status=status.HTTP_404_NOT_FOUND)
-        
-        try:
-            session = stripe.checkout.Session.retrieve(payment_id)
+            for key in res.keys():
+                if key == 'razorpay_order_id':
+                    ord_id = res[key]
+                elif key == 'razorpay_payment_id':
+                    raz_pay_id = res[key]
+                elif key == 'razorpay_signature':
+                    raz_signature = res[key]
+            
+            booking = Booking.objects.get(payment_id=ord_id)
+
+            data = {
+                'razorpay_order_id':ord_id,
+                'razorpay_payment_id':raz_pay_id,
+                'razorpay_signature':raz_signature
+            }
+            
+            def verify_signature(data):
+                return client.utility.verify_payment_signature(data)
+            
+            if not verify_signature(data):
+                booking.status = 'failed'
+                booking.payment_status = 'failed'
+                booking.save()
+                return Response({'error':'payment failed'},status=status.HTTP_400_BAD_REQUEST)
+
+            booking.status = 'confirmed'
+            booking.payment_status = 'paid'
+            booking.save()
+
+            context = {
+                'email':booking.user.email,
+                'id':booking.id,
+                'date':booking.booking_date,
+                'amount':booking.payment_amount
+            }
+
+            email_sent = send_booking_confirmation_email(context)
+            return Response({'message':'your booking has been confirmed.'},status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error':str(e)},status=status.HTTP_400_BAD_REQUEST)
-        
-        if session.payment_status == 'paid':
-            booking.status =='confirmed'
-            booking.payment_status=='paid'
-            booking.save()
-
-            subject = 'Booking Confirmation'
-            message = 'Your booking has been confirmed and payment is successful.'
-            from_email = settings.EMAIL_HOST_USER
-            recipient_list = [booking.user.email]
-            send_mail(subject, message, from_email, recipient_list)
-
-            return Response({'message':'payment successful.'},status=status.HTTP_200_OK)
-        else:
-            booking.status = 'failed'
-            booking.payment_status = 'failed'
-            booking.save()
-
-            return Response({'error':'payment failed'},status=status.HTTP_400_BAD_REQUEST)
 
 class BookingCancelView(APIView):
     permission_classes = [IsAuthenticated]
@@ -179,8 +186,33 @@ class BookingCancelView(APIView):
     def get(self,request,booking_id):
         try:
             booking = Booking.objects.filter(id=booking_id,user=request.user).first()
+            if booking.status == 'cancelled':
+                return Response({'message': 'Booking is already cancelled'}, status=status.HTTP_400_BAD_REQUEST)
+
+            refund_amount = int(booking.payment_amount * 100)
+
+            refund_data = {
+                'payment_id':booking.payment_id,
+                'amount':refund_amount,
+                'currency':'INR'
+            }
+
+            refund = client.payment.refund.create(data=refund_data)
+
+            if refund.get('error_code') is not None:
+                return Response({'error': 'Refund not successful'}, status=status.HTTP_400_BAD_REQUEST)
+            
             booking.status = 'cancelled'
             booking.save()
-            return Response({'message':'booking cancelled successfully'},status=status.HTTP_200_OK)
+
+            context = {
+                'email':booking.user.email,
+                'id':booking.id,
+                'date':booking.booking_date,
+                'amount':booking.payment_amount
+            }
+            email_sent = send_booking_cancellation_email(context)
+            return Response({'message': 'Booking cancelled and refund initiated'},status=status.HTTP_200_OK)
+        
         except Booking.DoesNotExist:
-            return Response({'error':'Booking not found'},status=status.HTTP_404_NOT_FOUND)      
+            return Response({'error':'Booking not found'},status=status.HTTP_404_NOT_FOUND)    

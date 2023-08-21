@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 import os
 from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,8 +33,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    
-    'admin_volt.apps.AdminVoltConfig',
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -162,7 +162,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ),
 
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
  
 }
 
@@ -177,3 +179,40 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
 LOGIN_REDIRECT_URL = '/'
+
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7)
+}
+
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5173','http://localhost:8000']
+
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "united",
+}
+
+JAZZMIN_SETTINGS = {
+    # title of the window (Will default to current_admin_site.site_title if absent or None)
+    "site_title": "Admin Panel - My Trip My Ticket",
+
+    # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_header": "My Trip My Ticket",
+
+    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_brand": "My Trip My Ticket",
+
+    # # Logo to use for your site, must be present in static files, used for brand on top left
+    "site_logo": "img/site_logo.png",
+
+    # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
+    "login_logo": "img/login_logo.png",
+
+    # Welcome text on the login screen
+    "welcome_sign": "Welcome to the Admin Panel",
+
+    # Copyright on the footer
+    "copyright": "My Trip My Ticket",
+}

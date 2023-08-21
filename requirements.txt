@@ -10,6 +10,7 @@ pillow
 pip-chill
 python-decouple
 pyyaml
+shortuuid
 stripe
 uritemplate
 uuid
