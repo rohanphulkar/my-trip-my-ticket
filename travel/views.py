@@ -11,6 +11,7 @@ from decouple import config
 import razorpay
 import json
 from .helper import send_booking_confirmation_email,send_booking_cancellation_email
+from datetime import date
 
 client = razorpay.Client(auth=(config('RZP_KEY'), config('RZP_SECRET')))
 
@@ -33,7 +34,7 @@ class BookingListView(generics.ListAPIView):
     serializer_class = BookingSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['user', 'tour','hotel','car', 'status']
+    filterset_fields = ['user', 'tour','hotel','car','flight','bus', 'status']
     ordering_fields = ['booking_date', 'check_in_date', 'check_out_date']
 
 class BookingDetailsView(generics.RetrieveAPIView):
@@ -67,6 +68,51 @@ class AdImageView(generics.ListAPIView):
     queryset = AdImage.objects.all()
     serializer_class = AdImageSerializer
 
+class AirportListView(generics.ListAPIView):
+    queryset = Airport.objects.all()
+    serializer_class = AirportSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['code', 'name', 'city', 'country']
+    filterset_fields = ['code', 'city', 'country']
+
+class AirportDetailsView(generics.RetrieveAPIView):
+    queryset = Airport.objects.all()
+    serializer_class = AirportSerializer
+
+class FlightListView(generics.ListAPIView):
+    queryset = Flight.objects.all()
+    serializer_class = FlightSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['departure_airport', 'arrival_airport']
+    search_fields = ['departure_airport__code', 'arrival_airport__code']
+
+class FlightDetailsView(generics.RetrieveAPIView):
+    queryset = Flight.objects.all()
+    serializer_class = FlightSerializer
+
+class BusListView(generics.ListAPIView):
+    queryset = Bus.objects.all()
+    serializer_class = BusSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['bus_number', 'operator', 'departure_city', 'arrival_city']
+    filterset_fields = ['operator', 'departure_city', 'arrival_city']
+
+class BusDetailsView(generics.RetrieveAPIView):
+    queryset = Bus.objects.all()
+    serializer_class = BusSerializer
+
+class OfferListView(generics.ListAPIView):
+    queryset = Offer.objects.all()
+    serializer_class = OfferSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['code', 'description', 'discount_percent']
+    filterset_fields = ['code']
+    
+class OfferDetailsView(generics.RetrieveAPIView):
+    queryset = Offer.objects.all()
+    serializer_class = OfferSerializer
+
+
 
 
 class PaymentView(APIView):
@@ -75,6 +121,7 @@ class PaymentView(APIView):
     def post(self,request):
         package_type = request.data.get('package_type',None)
         package_id = request.data.get('package_id',None)
+        promo_code = request.data.get('promo_code',None)
         user = request.user
 
         if package_type =='tour':
@@ -83,6 +130,10 @@ class PaymentView(APIView):
             package_model = Hotel
         elif package_type == 'car':
             package_model = Car
+        elif package_type == 'flight':
+            package_model = Flight
+        elif package_type == 'bus':
+            package_model = Bus
         else:
             return Response({'error': 'Invalid booking type'}, status=status.HTTP_400_BAD_REQUEST) 
         
@@ -91,10 +142,20 @@ class PaymentView(APIView):
         except package_model.DoesNotExist:
             return Response({'error': 'Package not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        
+        if promo_code:
+            try:
+                offer = Offer.objects.get(code=promo_code)
+                if date.today()> offer.end_date:
+                    return Response({'error':'promo code is expired'},status=status.HTTP_400_BAD_REQUEST)
+                discount_factor = 1 - offer.discount_percent / 100
+                amount = package_instance.price * discount_factor
+            except Exception as e:
+                return Response({'error':'Promo code is invalid'},status=status.HTTP_404_NOT_FOUND)
+        else:
+            amount = package_instance.price
         try:
             payment = client.order.create({
-                "amount":int(package_instance.price * 100),
+                "amount":int(amount * 100),
                 "currency":"INR",
                 "payment_capture":"1"
             })

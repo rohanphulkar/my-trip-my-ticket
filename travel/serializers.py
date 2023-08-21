@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Tour, Booking, Hotel, HotelAmenity, Car, AdImage, UserItinerary,CarType
+from .models import (Tour, Booking, Hotel, HotelAmenity, Car, AdImage,CarType,Airport,Flight,Bus,Offer)
 
 class TourSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,3 +38,26 @@ class AdImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdImage
         fields = ['id','image']
+
+class AirportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Airport
+        fields = '__all__'
+
+class FlightSerializer(serializers.ModelSerializer):
+    departure_airport = AirportSerializer(many=False,read_only=True)
+    arrival_airport = AirportSerializer(many=False,read_only=True)
+    class Meta:
+        model = Flight
+        fields = "__all__"
+
+
+class BusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bus
+        fields = "__all__"
+
+class OfferSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Offer
+        fields = "__all__"

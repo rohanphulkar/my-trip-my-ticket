@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
-    Tour, Booking, Hotel, HotelAmenity, Car, AdImage, UserItinerary, CarType,
-    TourImage, HotelImage, CarImage
+    Tour, Booking, Hotel, HotelAmenity, Car, AdImage, CarType,
+    TourImage, HotelImage, CarImage,Airport,Flight,Bus,Offer
 )
 
 class TourImageAdmin(admin.StackedInline):
@@ -22,7 +22,7 @@ class TourAdmin(admin.ModelAdmin):
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ('user', 'tour', 'status', 'check_in_date', 'check_out_date')
+    list_display = ('user', 'status', 'check_in_date', 'check_out_date')
     
 
 @admin.register(Hotel)
@@ -55,3 +55,26 @@ class CarTypeAdmin(admin.ModelAdmin):
 
 
 
+@admin.register(Airport)
+class AirportAdmin(admin.ModelAdmin):
+    list_display = ('code', 'name', 'city', 'country')
+    list_filter = ('country', 'city')
+    search_fields = ('code', 'name', 'city', 'country')
+
+@admin.register(Flight)
+class FlightAdmin(admin.ModelAdmin):
+    list_display = ('departure_airport', 'arrival_airport', 'departure_time', 'arrival_time', 'price', 'available_seats')
+    list_filter = ('departure_airport__city', 'arrival_airport__city')
+    search_fields = ('departure_airport__code', 'arrival_airport__code')
+
+@admin.register(Bus)
+class BusAdmin(admin.ModelAdmin):
+    list_display = ('bus_number', 'operator', 'departure_city', 'arrival_city', 'departure_datetime', 'arrival_datetime', 'available_seats')
+    list_filter = ('operator', 'departure_city', 'arrival_city')
+    search_fields = ('bus_number', 'operator', 'departure_city', 'arrival_city')
+
+@admin.register(Offer)
+class OfferAdmin(admin.ModelAdmin):
+    list_display = ('code', 'description', 'discount_percent', 'start_date', 'end_date')
+    list_filter = ('start_date', 'end_date')
+    search_fields = ('code', 'description')

@@ -114,7 +114,62 @@ class CarImage(models.Model):
 
 class AdImage(models.Model):
     id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
-    image = models.ImageField(upload_to='tour_ads/')
+    image = models.ImageField(upload_to='ads/')
+
+
+# Airports
+class Airport(models.Model):
+    code = models.CharField(max_length=10,unique=True)
+    name = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    country = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+    
+
+class Flight(models.Model):
+    departure_airport = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name='departures')
+    arrival_airport = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name='arrivals')
+    departure_time = models.DateTimeField()
+    arrival_time = models.DateTimeField()
+    duration = models.DurationField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    available_seats = models.PositiveIntegerField()
+    
+    def __str__(self):
+        return f"{self.departure_airport} to {self.arrival_airport} ({self.departure_time.strftime('%Y-%m-%d %H:%M')})"
+
+
+class Bus(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    bus_number = models.CharField(max_length=20)
+    operator = models.CharField(max_length=50)
+    departure_city = models.CharField(max_length=50)
+    departure_country = models.CharField(max_length=50)
+    departure_datetime = models.DateTimeField()
+    arrival_city = models.CharField(max_length=50)
+    arrival_country = models.CharField(max_length=50)
+    arrival_datetime = models.DateTimeField()
+    duration = models.DurationField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_seats = models.PositiveIntegerField()
+    available_seats = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"{self.operator} - {self.bus_number}"
+
+
+class Offer(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    code = models.CharField(max_length=20, unique=True)
+    description = models.TextField()
+    discount_percent = models.DecimalField(max_digits=5, decimal_places=2)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self):
+        return self.code
 
 
 class Booking(models.Model):
@@ -134,6 +189,8 @@ class Booking(models.Model):
     tour = models.ForeignKey(Tour,on_delete=models.CASCADE,blank=True,null=True)
     hotel = models.ForeignKey(Hotel,on_delete=models.CASCADE,blank=True,null=True)
     car = models.ForeignKey(Car,on_delete=models.CASCADE,blank=True,null=True)
+    flight = models.ForeignKey(Flight,on_delete=models.CASCADE,blank=True,null=True)
+    bus = models.ForeignKey(Bus,on_delete=models.CASCADE,blank=True,null=True)
     status = models.CharField(max_length=20,choices=STATUS_CHOICES,default='pending')
     payment_id = models.CharField(max_length=100,null=True,blank=True)
     payment_status = models.CharField(max_length=20,choices=PAYMENT_STATUS_CHOICES,default='pending')
