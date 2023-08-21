@@ -38,9 +38,3 @@ class AdImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdImage
         fields = ['id','image']
-
-
-class UserItinerarySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserItinerary
-        fields = '__all__'

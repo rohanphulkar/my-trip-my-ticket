@@ -68,18 +68,6 @@ class AdImageView(generics.ListAPIView):
     serializer_class = AdImageSerializer
 
 
-class UserItineraryListView(generics.ListAPIView):
-    serializer_class = UserItinerarySerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return UserItinerary.objects.filter(user=self.request.user)
-
-class UserItineraryDetailsView(generics.RetrieveAPIView):
-    queryset = UserItinerary.objects.all()
-    serializer_class = UserItinerarySerializer
-    permission_classes = [IsAuthenticated]
-
 
 class PaymentView(APIView):
     permission_classes = [IsAuthenticated]

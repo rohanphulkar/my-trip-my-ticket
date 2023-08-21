@@ -1,5 +1,4 @@
 django
-django-admin-volt
 django-cors-headers
 django-filter
 django-jazzmin
@@ -10,7 +9,8 @@ pillow
 pip-chill
 python-decouple
 pyyaml
+razorpay
 shortuuid
-stripe
+six
 uritemplate
 uuid

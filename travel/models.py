@@ -117,17 +117,6 @@ class AdImage(models.Model):
     image = models.ImageField(upload_to='tour_ads/')
 
 
-class UserItinerary(models.Model):
-    id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    tour = models.ForeignKey(Tour, on_delete=models.CASCADE)
-    date = models.DateField()
-    time = models.TimeField()
-
-    class Meta:
-        verbose_name_plural = 'User Itineraries'
-
-
 class Booking(models.Model):
     STATUS_CHOICES = (
         ('pending','Pending'),
