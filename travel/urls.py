@@ -1,8 +1,6 @@
 from django.urls import path
 from . import views
 urlpatterns = [
-    path('tours/', views.TourListView.as_view(), name='tour-list'),
-    path('tours/<uuid:pk>/', views.TourDetailsView.as_view(), name='tour-detail'),
     path('bookings/', views.BookingListView.as_view(), name='booking-list'),
     path('bookings/<uuid:pk>/', views.BookingDetailsView.as_view(), name='booking-detail'),
     path("booking/cancel/<uuid:booking_id>/", views.BookingCancelView.as_view(), name="booking_cencel"),

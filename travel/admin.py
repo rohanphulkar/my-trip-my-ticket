@@ -1,36 +1,34 @@
 from django.contrib import admin
 from .models import (
-    Tour, Booking, Hotel, HotelAmenity, Car, AdImage, CarType,
-    TourImage, HotelImage, CarImage,Airport,Flight,Bus,Offer
+    Booking, Hotel, HotelAmenity, Car, AdImage, CarType,
+    HotelImage, Airport, Flight, Bus, Offer, Airline, FuelType
 )
-
-class TourImageAdmin(admin.StackedInline):
-    model = TourImage
-
 
 class HotelImageAdmin(admin.StackedInline):
     model = HotelImage
 
-
-class CarImageAdmin(admin.StackedInline):
-    model = CarImage
-
-@admin.register(Tour)
-class TourAdmin(admin.ModelAdmin):
-    list_display = ('title', 'location', 'price')
-    inlines = [TourImageAdmin]
-
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ('user', 'status', 'check_in_date', 'check_out_date')
+    list_display = ('user', 'get_booking_type', 'status', 'check_in_date', 'check_out_date')
+
+    def get_booking_type(self, obj):
+        if obj.hotel:
+            return 'Hotel'
+        elif obj.car:
+            return 'Car'
+        elif obj.flight:
+            return 'Flight'
+        elif obj.bus:
+            return 'Bus'
+        return 'Unknown'
     
+    get_booking_type.short_description = 'Booking Type'
 
 @admin.register(Hotel)
 class HotelAdmin(admin.ModelAdmin):
     list_display = ('name', 'city', 'star_category')
     filter_horizontal = ('amenities',)
     inlines = [HotelImageAdmin]
-
 
 @admin.register(HotelAmenity)
 class HotelAmenityAdmin(admin.ModelAdmin):
@@ -39,18 +37,14 @@ class HotelAmenityAdmin(admin.ModelAdmin):
 @admin.register(Car)
 class CarAdmin(admin.ModelAdmin):
     list_display = ('name', 'city', 'car_type')
-    inlines = [CarImageAdmin]
 
 @admin.register(AdImage)
 class AdImageAdmin(admin.ModelAdmin):
     pass
 
-
 @admin.register(CarType)
 class CarTypeAdmin(admin.ModelAdmin):
     list_display = ['type']
-
-
 
 @admin.register(Airport)
 class AirportAdmin(admin.ModelAdmin):
@@ -66,7 +60,7 @@ class FlightAdmin(admin.ModelAdmin):
 
 @admin.register(Bus)
 class BusAdmin(admin.ModelAdmin):
-    list_display = ('bus_number', 'operator', 'departure_city', 'arrival_city', 'departure_datetime', 'arrival_datetime', 'available_seats')
+    list_display = ('bus_number', 'operator', 'departure_city', 'arrival_city', 'departure_time', 'arrival_time', 'available_seats')
     list_filter = ('operator', 'departure_city', 'arrival_city')
     search_fields = ('bus_number', 'operator', 'departure_city', 'arrival_city')
 
@@ -75,3 +69,12 @@ class OfferAdmin(admin.ModelAdmin):
     list_display = ('code', 'description', 'discount_percent', 'start_date', 'end_date')
     list_filter = ('start_date', 'end_date')
     search_fields = ('code', 'description')
+
+@admin.register(Airline)
+class AirlineAdmin(admin.ModelAdmin):
+    list_display = ('code', 'name')
+
+@admin.register(FuelType)
+class FuelTypeAdmin(admin.ModelAdmin):
+    list_display = ('fuel',)
+

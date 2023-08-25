@@ -6,28 +6,16 @@ from rest_framework.response import Response
 from .serializers import *
 from .models import *
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import TourPriceFilter
 from decouple import config
 import razorpay
 import json
 from .helper import send_booking_confirmation_email,send_booking_cancellation_email
 from datetime import date
+from .filters import *
 
 client = razorpay.Client(auth=(config('RZP_KEY'), config('RZP_SECRET')))
 
-class TourListView(generics.ListAPIView):
-    queryset = Tour.objects.all()
-    serializer_class = TourSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['title', 'location']
-    filter_class = TourPriceFilter
-    filterset_fields = ['price']
-    ordering_fields = ['title', 'price']
-    
 
-class TourDetailsView(generics.RetrieveAPIView):
-    queryset = Tour.objects.all()
-    serializer_class = TourSerializer
 
 class BookingListView(generics.ListAPIView):
     queryset = Booking.objects.all()
@@ -48,6 +36,7 @@ class HotelListView(generics.ListAPIView):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'country', 'state', 'city']
     ordering_fields = ['name', 'star_category', 'rent']
+    filterset_class = HotelFilter
 
 class HotelDetailsView(generics.RetrieveAPIView):
     queryset = Hotel.objects.all()
@@ -58,7 +47,8 @@ class CarListView(generics.ListAPIView):
     serializer_class = CarSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'country', 'state', 'city', 'make', 'model']
-    ordering_fields = ['name', 'passengers', 'rent']
+    ordering_fields = ['name', 'seats', 'rent']
+    filterset_class = CarFilter
 
 class CarDetailsView(generics.RetrieveAPIView):
     queryset = Car.objects.all()
@@ -82,9 +72,9 @@ class AirportDetailsView(generics.RetrieveAPIView):
 class FlightListView(generics.ListAPIView):
     queryset = Flight.objects.all()
     serializer_class = FlightSerializer
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['departure_airport', 'arrival_airport']
-    search_fields = ['departure_airport__code', 'arrival_airport__code']
+    filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
+    filterset_class = FlightFilter
+    filter_fields = ['departure_airport_city', 'arrival_airport_city', 'departure_date', 'arrival_date', 'min_price', 'max_price']
 
 class FlightDetailsView(generics.RetrieveAPIView):
     queryset = Flight.objects.all()
@@ -94,12 +84,18 @@ class BusListView(generics.ListAPIView):
     queryset = Bus.objects.all()
     serializer_class = BusSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['bus_number', 'operator', 'departure_city', 'arrival_city']
-    filterset_fields = ['operator', 'departure_city', 'arrival_city']
+    search_fields = ['bus_number', 'operator', 'origin_city', 'destination_city']
+    filterset_fields = ['operator', 'origin_city', 'destination_city']
+    filterset_class = BusFilter
 
 class BusDetailsView(generics.RetrieveAPIView):
     queryset = Bus.objects.all()
     serializer_class = BusSerializer
+
+class PackageViewSet(generics.ListAPIView):
+    queryset = Package.objects.all()
+    serializer_class = PackageSerializer
+    filterset_class = PackageFilter
 
 class OfferListView(generics.ListAPIView):
     queryset = Offer.objects.all()
@@ -124,9 +120,7 @@ class PaymentView(APIView):
         promo_code = request.data.get('promo_code',None)
         user = request.user
 
-        if package_type =='tour':
-            package_model = Tour
-        elif package_type == 'hotel':
+        if package_type == 'hotel':
             package_model = Hotel
         elif package_type == 'car':
             package_model = Car
