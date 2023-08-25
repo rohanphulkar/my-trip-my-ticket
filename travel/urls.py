@@ -16,6 +16,8 @@ urlpatterns = [
     path('buses/<uuid:pk>/', views.BusDetailsView.as_view(), name='bus-detail'),
     path('offers/', views.OfferListView.as_view(), name='offer-list'),
     path('offers/<uuid:pk>/', views.OfferDetailsView.as_view(), name='offer-detail'),
+    path('packages/', views.PackageListView.as_view(), name='package-list'),
+    path('packages/<uuid:pk>/', views.PackageDetailsView.as_view(), name='package-detail'),
     path("payment/", views.PaymentView.as_view(), name="payment"),
     path("payment-confirm/", views.PaymentConfirmationView.as_view(), name="payment_confirmation"),
 ]

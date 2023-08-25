@@ -92,10 +92,14 @@ class BusDetailsView(generics.RetrieveAPIView):
     queryset = Bus.objects.all()
     serializer_class = BusSerializer
 
-class PackageViewSet(generics.ListAPIView):
+class PackageListView(generics.ListAPIView):
     queryset = Package.objects.all()
     serializer_class = PackageSerializer
     filterset_class = PackageFilter
+
+class PackageDetailsView(generics.RetrieveAPIView):
+    queryset = Package.objects.all()
+    serializer_class = PackageSerializer
 
 class OfferListView(generics.ListAPIView):
     queryset = Offer.objects.all()
