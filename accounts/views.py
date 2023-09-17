@@ -1,25 +1,89 @@
 from rest_framework.response import Response
 from .models import User
-from .serializers import RegistrationSerializer,UserSerializer
+from .serializers import UserSerializer
 from rest_framework import status
 from rest_framework.views import APIView
 import uuid
-from .helper import send_password_reset_email
+from .helper import send_password_reset_email,send_otp
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from .serializers import EditProfileSerializer
-from .token import MyTokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import InvalidToken
+import random
+import jwt
 
-class RegistrationView(APIView):
+class LoginView(APIView):
+    def post(self,request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        user = User.objects.filter(email=email)
+        if not user:
+            if not len(password) >=8:
+                return Response({'error':'Password must have minimum 8 character'},status=status.HTTP_400_BAD_REQUEST)
+            user = User.objects.create(email=email,provider='email')
+            user.set_password(password)
+            user.save()
+            return Response({'message':'Account created successfully'},status=status.HTTP_200_OK)
+        user = User.objects.get(email=email)
+        if user.provider!='email':
+            return Response({'error':'Please try login through phone number or google acccount.'},status=status.HTTP_400_BAD_REQUEST)
+        if not user.check_password(password):
+            return Response({'error':'Invalid password'},status=status.HTTP_400_BAD_REQUEST)
+        token = RefreshToken.for_user(user)
+        return Response({'message':'login successfully','token':str(token.access_token),'email':user.email},status=status.HTTP_200_OK)
+
+    
+
+class SendOTPView(APIView):
+    def post(self,request):
+        phone = request.data.get('phone')
+        otp = random.randint(100000,999999)
+        try:
+            user = User.objects.get(phone=phone)
+            if user.provider!='phone':
+                return Response({'error':'Please try login through email or google acccount.'},status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            user = User.objects.create(phone=phone,provider='phone')
+        user.otp = otp
+        user.save()
+        otp_sent = send_otp(phone,otp)
+        if not otp_sent:
+            return Response({'error':'failed to sent otp.'},status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message':'An otp has been sent to your mobile number'},status=status.HTTP_200_OK)
+    
+class VerifyOTPView(APIView):
+    def post(self,request):
+        otp = request.data.get('otp')
+        try:
+            user = User.objects.get(otp=otp)
+        except Exception as e:
+            return Response({'error':'otp is invalid'},status=status.HTTP_404_NOT_FOUND)
+        token = RefreshToken.for_user(user)
+        user.otp = ''
+        user.save()
+        return Response({'message':'login successfully','token':str(token.access_token),'email':user.email},status=status.HTTP_200_OK)
+
+class GoogleLogin(APIView):
     def post(self, request):
-        serializer = RegistrationSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'success':'registration successful'}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+        token = request.data.get('token')
+        try:
+            decoded_token = jwt.decode(token, options={"verify_signature": False})
+    
+            name = decoded_token['name']
+            email = decoded_token['email']
+        except jwt.ExpiredSignatureError:
+            return Response({'error': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.DecodeError:
+            return Response({'error': 'Invalid token.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:    
+            user = User.objects.get(email=email)
+            if user.provider!='google':
+                return Response({'error':'Please try login through email or phone number.'},status=status.HTTP_400_BAD_REQUEST)
+        except:
+            user = User.objects.create(email=email,name=name,provider='google')
+        token = RefreshToken.for_user(user)
+        return Response({'token': str(token.access_token),'email':user.email}, status=status.HTTP_200_OK)
 
 class ForgotPasswordView(APIView):
     def post(self, request):

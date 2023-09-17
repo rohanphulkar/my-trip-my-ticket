@@ -49,8 +49,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -92,7 +92,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # }
 
 DATABASES = {
-   'default': {
+  'default': {
        'ENGINE': 'django.db.backends.mysql',
        'NAME': config("DB_NAME"),
        'USER':  config("DB_USER"),
@@ -163,7 +163,6 @@ REST_FRAMEWORK = {
     ),
 
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-   
  
 }
 
@@ -186,7 +185,7 @@ SIMPLE_JWT = {
 }
 
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:5173','http://localhost:8000']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5173','http://localhost:8000','http://phoenixdev.online','https://phoenixdev.online']
 
 
 JAZZMIN_UI_TWEAKS = {
@@ -214,4 +213,23 @@ JAZZMIN_SETTINGS = {
 
     # Copyright on the footer
     "copyright": "My Trip My Ticket",
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
 }

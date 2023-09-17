@@ -1,9 +1,11 @@
 from django.urls import path
 from . import views
 urlpatterns = [
+    path('adimages/', views.AdImageView.as_view(), name='adimages'),
     path('bookings/', views.BookingListView.as_view(), name='booking-list'),
-    path('bookings/<uuid:pk>/', views.BookingDetailsView.as_view(), name='booking-detail'),
-    path("booking/cancel/<uuid:booking_id>/", views.BookingCancelView.as_view(), name="booking_cencel"),
+    path('bookings/user/', views.UserBookingsView.as_view(), name='user-bookings'),
+    path('bookings/<pk>/', views.BookingDetailsView.as_view(), name='booking-detail'),
+    path("booking/cancel/<pk>/", views.BookingCancelView.as_view(), name="booking_cencel"),
     path('hotels/', views.HotelListView.as_view(), name='hotel-list'),
     path('hotels/<uuid:pk>/', views.HotelDetailsView.as_view(), name='hotel-detail'),
     path('cars/', views.CarListView.as_view(), name='car-list'),
@@ -20,4 +22,8 @@ urlpatterns = [
     path('packages/<uuid:pk>/', views.PackageDetailsView.as_view(), name='package-detail'),
     path("payment/", views.PaymentView.as_view(), name="payment"),
     path("payment-confirm/", views.PaymentConfirmationView.as_view(), name="payment_confirmation"),
+    path('contact/', views.ContactAPIView.as_view(), name='contact'),
+    path("duplicate/", views.duplicate_instance, name="duplicate_instance"),
+    path('get_model_instances/', views.get_model_instances, name='get_model_instances'),
+    path('forex/create/', views.ForexCreateView.as_view(), name='forex-create'),
 ]
