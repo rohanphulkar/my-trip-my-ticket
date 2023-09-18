@@ -194,3 +194,8 @@ class ForexCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Forex
         fields = ['name','email','location', 'currency', 'quantity', 'purpose_of_visit', 'booking_currency_for', 'amount','action']
+        
+class DubaiActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DubaiActivity
+        fields = ('id', 'name', 'description', 'image', 'price')

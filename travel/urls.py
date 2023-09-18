@@ -18,6 +18,7 @@ urlpatterns = [
     path('buses/<uuid:pk>/', views.BusDetailsView.as_view(), name='bus-detail'),
     path('offers/', views.OfferListView.as_view(), name='offer-list'),
     path('offers/<uuid:pk>/', views.OfferDetailsView.as_view(), name='offer-detail'),
+    path('check-offer/<code>/',views.CheckOfferView.as_view(),name='check_offer'),
     path('packages/', views.PackageListView.as_view(), name='package-list'),
     path('packages/<uuid:pk>/', views.PackageDetailsView.as_view(), name='package-detail'),
     path("payment/", views.PaymentView.as_view(), name="payment"),
@@ -26,4 +27,6 @@ urlpatterns = [
     path("duplicate/", views.duplicate_instance, name="duplicate_instance"),
     path('get_model_instances/', views.get_model_instances, name='get_model_instances'),
     path('forex/create/', views.ForexCreateView.as_view(), name='forex-create'),
+    path('activities/', views.DubaiActivityList.as_view(), name='activity-list'),
+    path('activities/<int:pk>/', views.DubaiActivityDetail.as_view(), name='activity-detail'),
 ]

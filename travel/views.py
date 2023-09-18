@@ -126,80 +126,16 @@ class OfferDetailsView(generics.RetrieveAPIView):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
 
-
-
-
-# class PaymentView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self,request):
-#         package_type = request.data.get('package_type',None)
-#         package_id = request.data.get('package_id',None)
-#         promo_code = request.data.get('promo_code',None)
-#         tickets = request.data.get('tickets',1)
-#         user = request.user
-
-#         user_obj = {'name':user.name,"email":user.email,'phone':user.phone}
+class CheckOfferView(APIView):
+    def get(self,request,code):
+        try:
+            offer = Offer.objects.get(code=code)
+        except Exception as e:
+            return Response({'error':'Offer Code is invalid'},status=status.HTTP_404_NOT_FOUND)
         
+        serializer = OfferSerializer(offer,many=False)
+        return Response(serializer.data,status=status.HTTP_200_OK)
 
-#         if package_type == 'hotel':
-#             package_model = Hotel
-#         elif package_type == 'car':
-#             package_model = Car
-#         elif package_type == 'flight':
-#             package_model = Flight
-#         elif package_type == 'bus':
-#             package_model = Bus
-#         elif package_type == 'package':
-#             package_model = Package
-#         else:
-#             return Response({'error': 'Invalid booking type'}, status=status.HTTP_400_BAD_REQUEST) 
-        
-#         try:
-#             package_instance = package_model.objects.get(pk=package_id)
-#         except package_model.DoesNotExist:
-#             return Response({'error': 'Package not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-#         amount = package_instance.price * tickets
-
-#         if promo_code:
-#             try:
-#                 offer = Offer.objects.get(code=promo_code)
-#                 if date.today()> offer.end_date:
-#                     return Response({'error':'promo code is expired'},status=status.HTTP_400_BAD_REQUEST)
-#                 discount_factor = 1 - offer.discount_percent / 100
-#                 amount = amount.price * discount_factor
-#             except Exception as e:
-#                 return Response({'error':'Promo code is invalid'},status=status.HTTP_404_NOT_FOUND)
-        
-#         try:
-#             payment = client.order.create({
-#                 "amount":int(amount * 100),
-#                 "currency":"INR",
-#                 "payment_capture":"1"
-#             })
-            
-#             booking = Booking.objects.create(
-#                 user = user,
-#                 package=package_instance if package_type == 'package' else None,
-#                 hotel=package_instance if package_type == 'hotel' else None,
-#                 car=package_instance.id if package_type == 'car' else None,
-#                 flight=package_instance if package_type == 'flight' else None,
-#                 bus=package_instance if package_type == 'bus' else None,
-#                 payment_amount = amount,
-#                 order_id = payment['id']
-#             )
-
-#             serializer = PaymentSerializer(booking,many=False)
-
-#             data = {
-#                 'payment':payment,
-#                 "booking":serializer.data,
-#                 "user":user_obj
-#             }
-#             return Response(data,status=status.HTTP_200_OK)
-#         except Exception as e:
-#             return Response({'error':str(e)},status=status.HTTP_400_BAD_REQUEST)
 
 
 class PaymentView(APIView):
@@ -212,22 +148,23 @@ class PaymentView(APIView):
         promo_code = request.data.get('promo_code',None)
         people = request.data.get('people',1)
         package_id = request.data.get('package_id',None)
-        contact_email = request.data.get('email')
-        contact_phone = request.data.get('phone')
+        contact_email = request.data.get('email',None)
+        contact_phone = request.data.get('phone',None)
+        startDate = request.data.get('start_date',None)
+        endDate = request.data.get('end_date',None)
 
         if package_type == 'hotel':
             try:
                 room = Room.objects.get(id=package_id)
             except Room.DoesNotExist:
                 return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
-            check_in_date = request.data.get('check_in_date')
-            check_out_date = request.data.get('check_out_date')
+            
 
             if room.available_rooms<=0 or not room.availability:
                 return Response({'error':'Room is not available'},status=status.HTTP_400_BAD_REQUEST)
-            reservation = HotelReservation.objects.create(user=user,hotel=room.hotel,room=room,total_guests=people,check_in_date=check_in_date,check_out_date=check_out_date,contact_email=contact_email,contact_phone=contact_phone)
+            reservation = HotelReservation.objects.create(user=user,hotel=room.hotel,room=room,total_guests=people,check_in_date=startDate,check_out_date=endDate,contact_email=contact_email,contact_phone=contact_phone)
 
-            amount = room.price
+            amount = room.price * int(people)
 
 
         elif package_type == 'car':
@@ -237,10 +174,8 @@ class PaymentView(APIView):
                 return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
             if car.available_cars <=0:
                 return Response({'error':'Car is not available'},status=status.HTTP_400_BAD_REQUEST)
-            rental_start_date = request.data.get('rental_start_date')
-            rental_end_date = request.data.get('rental_end_date')
-            reservation = CarReservation.objects.create(user=user,car=car,passenger=people,contact_email=contact_email,contact_phone=contact_phone,rental_start_date=rental_start_date,rental_end_date=rental_end_date)
-            amount = car.price
+            reservation = CarReservation.objects.create(user=user,car=car,passenger=people,contact_email=contact_email,contact_phone=contact_phone,rental_start_date=startDate,rental_end_date=endDate)
+            amount = car.price * int(people)
         elif package_type == 'flight':
             try:
                 flight = Flight.objects.get(id=package_id)
@@ -248,9 +183,9 @@ class PaymentView(APIView):
                 return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
             if flight.available_seats <=0:
                 return Response({'error':'Flight is not available'},status=status.HTTP_400_BAD_REQUEST)
-            departure_on = request.data.get('departure_on')
-            reservation = FlightReservation.objects.create(user=user,flight=flight,passenger=people,contact_email=contact_email,contact_phone=contact_phone,departure_on=departure_on)
-            amount = flight.price
+         
+            reservation = FlightReservation.objects.create(user=user,flight=flight,passenger=people,contact_email=contact_email,contact_phone=contact_phone,departure_on=startDate)
+            amount = flight.price * int(people)
         elif package_type == 'bus':
             try:
                 bus = Bus.objects.get(id=package_id)
@@ -258,9 +193,9 @@ class PaymentView(APIView):
                 return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
             if bus.available_seats <=0:
                 return Response({'error':'No seats available'},status=status.HTTP_400_BAD_REQUEST)
-            departure_on = request.data.get('departure_on')
-            reservation = BusReservation.objects.create(user=user,bus=bus,passenger=people,contact_email=contact_email,contact_phone=contact_phone,departure_on=departure_on)
-            amount = bus.price
+            
+            reservation = BusReservation.objects.create(user=user,bus=bus,passenger=people,contact_email=contact_email,contact_phone=contact_phone,departure_on=startDate)
+            amount = bus.price * int(people)
             
         elif package_type == 'package':
             try:
@@ -268,17 +203,18 @@ class PaymentView(APIView):
             except Package.DoesNotExist:
                 return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
             reservation = PackageReservation.objects.create(user=user,package=package,passenger=people)
-            amount = package.price
+            amount = package.price * int(people)
         else:
             return Response({'error': 'Invalid booking type'}, status=status.HTTP_400_BAD_REQUEST)
     
         if promo_code:
             try:
                 offer = Offer.objects.get(code=promo_code)
+                
                 if date.today()> offer.end_date:
                     return Response({'error':'promo code is expired'},status=status.HTTP_400_BAD_REQUEST)
                 discount_factor = 1 - offer.discount_percent / 100
-                amount = amount.price * discount_factor
+                amount = amount * discount_factor
             except Exception as e:
                 return Response({'error':'Promo code is invalid'},status=status.HTTP_404_NOT_FOUND)
         
@@ -541,3 +477,12 @@ def duplicate_instance(request):
         messages.success(request,f"{count} entries of {instance} has been created.")
     return render(request,'travel/duplicate_instance.html',{'model_list':dict(models_list.items())})
     
+
+
+class DubaiActivityList(generics.ListAPIView):
+    queryset = DubaiActivity.objects.all()
+    serializer_class = DubaiActivitySerializer
+
+class DubaiActivityDetail(generics.RetrieveAPIView):
+    queryset = DubaiActivity.objects.all()
+    serializer_class = DubaiActivitySerializer

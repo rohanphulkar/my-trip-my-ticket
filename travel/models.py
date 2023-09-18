@@ -56,14 +56,20 @@ class Room(models.Model):
 
     def __str__(self):
         return f'{self.hotel.name} - {self.room_type}'
-    
     def save(self, *args, **kwargs):
+        # Get the minimum price room for the hotel
         min_price_room = Room.objects.filter(hotel=self.hotel).order_by('price').first()
-        if min_price_room.price >= self.price:
+    
+        if min_price_room is not None:
+            if min_price_room.price >= self.price:
+                # Update the hotel's price if the new room price is lower
+                self.hotel.price = self.price
+                self.hotel.save()
+        else:
             self.hotel.price = self.price
             self.hotel.save()
         super().save(*args, **kwargs)
-    
+        
 class HotelImage(models.Model):
     id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
     hotel = models.ForeignKey(Hotel,on_delete=models.CASCADE)
@@ -180,6 +186,9 @@ class FlightAmenity(models.Model):
     inflight_wifi = models.BooleanField(default=False)
     priority_boarding = models.BooleanField(default=False)
     lounge_access = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.name
 
 
 class Bus(models.Model):
@@ -216,6 +225,9 @@ class BusAmenity(models.Model):
     onboard_entertainment = models.BooleanField(default=False)
     reclining_seats = models.BooleanField(default=False)
     restroom_onboard = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.name
 
 class Package(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
@@ -268,8 +280,8 @@ class Reservation(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     passenger = models.IntegerField(default=0)
-    contact_email = models.EmailField()
-    contact_phone = models.CharField(max_length=20)
+    contact_email = models.EmailField(null=True,blank=True)
+    contact_phone = models.CharField(max_length=20,null=True,blank=True)
     status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='pending')
     reservation_date = models.DateField(default=date.today)
 
@@ -373,4 +385,13 @@ class Forex(models.Model):
     
     def __str__(self):
         return f'{self.location} - {self.currency}'
+        
+class DubaiActivity(models.Model):
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+    image = models.ImageField(upload_to='activity_images/')
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.name
     

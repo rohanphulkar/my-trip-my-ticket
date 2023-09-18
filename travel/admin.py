@@ -125,3 +125,10 @@ class PackageReservationAdmin(admin.ModelAdmin):
     list_display = ['user', 'package', 'status', 'reservation_date']
     list_filter = ['status', 'reservation_date']
     search_fields = ['user__email', 'package__name']
+    
+
+@admin.register(DubaiActivity)
+class DubaiActivityAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price')
+    search_fields = ('name',)
+    list_filter = ('price',)
