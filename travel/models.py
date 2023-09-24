@@ -117,7 +117,7 @@ class Car(models.Model):
     fuel_type = models.CharField(max_length=50, choices=[('Petrol', 'Petrol'), ('Diesel', 'Diesel'), ('Electric', 'Electric')],default="Petrol")
     ac = models.BooleanField()
     bags = models.BooleanField()
-    images = models.ImageField(upload_to='cars/')
+    image = models.ImageField(upload_to='cars/')
     price = models.DecimalField(max_digits=10, decimal_places=2,default=0)
     tax_percent = models.DecimalField(max_digits=5, decimal_places=2)
     tax_type = models.CharField(max_length=20)
@@ -127,6 +127,15 @@ class Car(models.Model):
 
     def __str__(self):
         return f"{self.make} {self.model}"
+
+
+class CarImage(models.Model):
+    id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
+    car = models.ForeignKey(Car,on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='car_images/')
+    
+    def __str__(self):
+        return f"{self.car.make} {self.car.model}"
 
 
 class AdImage(models.Model):
@@ -256,7 +265,7 @@ class Offer(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     title = models.CharField(max_length=100, default="")
     code = models.CharField(max_length=20, unique=True)
-    image = models.ImageField(upload_to="offer_images/",blank=True)
+    image = models.ImageField(upload_to="offer_images/")
     flights = models.ManyToManyField('Flight',related_name='offer_flights',blank=True)
     cars = models.ManyToManyField('Car',related_name='offer_cars',blank=True)
     buses = models.ManyToManyField('Bus',related_name='offer_buses',blank=True)
@@ -355,6 +364,7 @@ class Booking(models.Model):
     payment_status = models.CharField(max_length=20,choices=PAYMENT_STATUS_CHOICES,default='pending')
     payment_amount = models.DecimalField(max_digits=10, decimal_places=2)
     booking_date = models.DateTimeField(auto_now_add=True)
+    pdf = models.FileField(upload_to="pdf/",null=True,blank=True)
     check_in_date = models.DateField(blank=True,null=True)
     check_out_date = models.DateField(blank=True,null=True)
 

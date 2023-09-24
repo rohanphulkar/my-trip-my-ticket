@@ -58,12 +58,27 @@ class CarTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarType
         fields = '__all__'
+        
+class CarImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarImage
+        fields = ('id','image')
 
 class CarSerializer(serializers.ModelSerializer):
     car_type = CarTypeSerializer(many=False,read_only=True)
+    car_images = serializers.SerializerMethodField('get_car_images')
+    
     class Meta:
         model = Car
-        fields = '__all__'
+        fields = ['id', 'name', 'address', 'country', 'state', 'city', 'pin', 'email', 'phone_number', 'origin_city', 'destination_city', 'make', 'model', 'car_type', 'seats', 'transmission_type', 'fuel_type', 'ac', 'bags', 'image', 'price', 'tax_percent', 'tax_type', 'total_cars', 'available_cars', 'available_till','car_images']
+    
+    def get_car_images(self, obj):
+        images = CarImage.objects.filter(car=obj.id)
+        serializer = CarImageSerializer(images, many=True)
+        return [{'id':image['id'],'image':self._get_image_url(image['image'])} for image in serializer.data]
+
+    def _get_image_url(self, image_path):
+        return self.context['request'].build_absolute_uri(settings.MEDIA_URL + image_path.replace('/media/',''))
 
 class AdImageSerializer(serializers.ModelSerializer):
     class Meta:

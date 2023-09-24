@@ -25,7 +25,7 @@ class HotelFilter(django_filters.FilterSet):
     tax_type = django_filters.CharFilter(field_name='tax_type', lookup_expr='iexact')
     tax_percent = django_filters.RangeFilter(field_name='tax_percent')
     total_rooms = django_filters.RangeFilter(field_name='total_rooms')
-    available_rooms = django_filters.RangeFilter(field_name='available_rooms')
+    available_rooms = django_filters.RangeFilter(field_name='rooms__available_rooms')
     price = django_filters.RangeFilter(field_name='rooms__price')
     available_from = django_filters.DateFromToRangeFilter(field_name='available_from',lookup_expr='gte')
     available_to = django_filters.DateFromToRangeFilter(field_name='available_to',lookup_expr='lte')

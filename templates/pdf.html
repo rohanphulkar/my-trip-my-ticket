@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body style="font-family: 'Lucida Sans', Geneva, sans-serif; margin: 0; padding: 0;">
+  <div class="main-container" style="max-width: 85rem; margin: 0 auto;">
+    <div class="container" style="display: flex; width: 100%; justify-content: space-between;">
+      <img src="https://res.cloudinary.com/rohanphulkar/image/upload/v1695454580/logo_hzdpdo.png"
+        alt="Logo" srcset="" width="150" class="py-3">
+      <div>
+        <div>
+          Booking ID: <span>{{booking_id}}</span>
+        </div>
+        <div>
+          Booking Date: <span>{{booking_date}}</span>
+        </div>
+      </div>
+    </div>
+    <div class="grid-container" style="display: grid; grid-template-columns: 1fr 1fr; margin: 0 auto;">
+      <div>
+        <div>
+          <h3 style="font-weight: 500; font-size: 1rem;">Email Address</h3>
+          <p style="font-size: 1.3rem; font-weight: 800;">{{email}}</p>
+        </div>
+      </div>
+      <div>
+        <div>
+          <h3 style="font-weight: 500; font-size: 1rem;">Phone Number</h3>
+          <p style="font-size: 1.3rem; font-weight: 800;">{{phone}}</p>
+        </div>
+      </div>
+      <div>
+        {% if make and model %}
+        <div>
+          <h3 style="font-weight: 500; font-size: 1rem;">Car</h3>
+          <p style="font-size: 1.3rem; font-weight: 800;">{{make}} {{model}}</p>
+        </div>
+        {% endif %}
+      </div>
+      <div>
+        {% if hotel_name and hotel_city %}
+        <div>
+          <h3 style="font-weight: 500; font-size: 1rem;">Hotel</h3>
+          <p style="font-size: 1.3rem; font-weight: 800;">{{hotel_name}}, {{hotel_city}}</p>
+        </div>
+        {% endif %}
+      </div>
+      <div>
+            {% if room_type %}
+            <div>
+              <h3 style="font-weight: 500; font-size: 1rem">Room</h3>
+              <p style="font-size: 1.3rem; font-weight: 800">{{room_type}}</p>
+            </div>
+            {% endif %}
+          </div>
+          <div>
+            {% if flight_number %}
+            <div>
+              <h3 style="font-weight: 500; font-size: 1rem">Flight Number</h3>
+              <p style="font-size: 1.3rem; font-weight: 800">
+                {{flight_number}}
+              </p>
+            </div>
+            {% endif %}
+          </div>
+          <div>
+            {% if flight_name %}
+            <div>
+              <h3 style="font-weight: 500; font-size: 1rem">Flight Name</h3>
+              <p style="font-size: 1.3rem; font-weight: 800">{{flight_name}}</p>
+            </div>
+            {% endif %}
+          </div>
+          <div>
+            {% if bus_number %}
+            <div>
+              <h3 style="font-weight: 500; font-size: 1rem">Bus Number</h3>
+              <p style="font-size: 1.3rem; font-weight: 800">{{bus_number}}</p>
+            </div>
+            {% endif %}
+          </div>
+          <div>
+            {% if bus_type %}
+            <div>
+              <h3 style="font-weight: 500; font-size: 1rem">Bus Type</h3>
+              <p style="font-size: 1.3rem; font-weight: 800">{{bus_type}}</p>
+            </div>
+            {% endif %}
+          </div>
+          <div>
+            {% if bus_operator %}
+            <div>
+              <h3 style="font-weight: 500; font-size: 1rem">Bus Operator</h3>
+              <p style="font-size: 1.3rem; font-weight: 800">
+                {{bus_operator}}
+              </p>
+            </div>
+            {% endif %}
+          </div>
+          <div>
+            {% if people %}
+            <div>
+              <h3 style="font-weight: 500; font-size: 1rem">People</h3>
+              <p style="font-size: 1.3rem; font-weight: 800">{{people}}</p>
+            </div>
+            {% endif %}
+          </div>
+          <div>
+            {% if from %}
+            <div>
+              <h3 style="font-weight: 500; font-size: 1rem">From</h3>
+              <p style="font-size: 1.3rem; font-weight: 800">{{from}}</p>
+            </div>
+            {% endif %}
+          </div>
+          <div>
+            {% if to %}
+            <div>
+              <h3 style="font-weight: 500; font-size: 1rem">To</h3>
+              <p style="font-size: 1.3rem; font-weight: 800">{{to}}</p>
+            </div>
+            {% endif %}
+          </div>
+          <div>
+            {% if start_date %}
+            <div>
+              <h3 style="font-weight: 500; font-size: 1rem">Start Date</h3>
+              <p style="font-size: 1.3rem; font-weight: 800">{{start_date}}</p>
+            </div>
+            {% endif %}
+          </div>
+          <div>
+            {% if end_date %}
+            <div>
+              <h3 style="font-weight: 500; font-size: 1rem">End Date</h3>
+              <p style="font-size: 1.3rem; font-weight: 800">{{end_date}}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div>
+        <div>
+          <span>Need help in your trip?</span>
+        </div>
+        <h3 style="font-weight: 500; font-size: 1rem">
+          Contact Us
+          <a href="https://mytripmyticket.co.in/contact" style="color: red"
+            >Here</a
+          >
+        </h3>
+      </div>
+    </div>
+  </body>
+</html>

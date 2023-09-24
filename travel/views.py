@@ -8,16 +8,15 @@ from .models import *
 from django_filters.rest_framework import DjangoFilterBackend
 from decouple import config
 import razorpay
-from .helper import send_booking_confirmation_email,send_booking_cancellation_email
+from .helper import send_booking_confirmation_email,send_booking_cancellation_email,save_pdf
 from datetime import date
 from .filters import *
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
-from django.db import transaction
-from datetime import date, timedelta
-
+from datetime import date,datetime
+from django.core.files.base import ContentFile
 client = razorpay.Client(auth=(config('RZP_KEY'), config('RZP_SECRET')))
 
 
@@ -30,15 +29,27 @@ class BookingListView(generics.ListAPIView):
     filterset_class = BookingFilter
     filter_fields = ["status"]
     
-class UserBookingsView(APIView):
+# class UserBookingsView(APIView):
+#     permission_classes = [IsAuthenticated]
+#     def get(self, request):
+#         bookings = Booking.objects.filter(user=request.user)
+#         serializer = BookingSerializer(bookings, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UserBookingsView(generics.ListAPIView):
+    serializer_class = BookingSerializer
     permission_classes = [IsAuthenticated]
-    def get(self, request):
-        bookings = Booking.objects.filter(user=request.user)
-        
-        # Apply the filters to the queryset
-        booking_filter = BookingFilter(request.GET, queryset=bookings)
-        filtered_bookings = booking_filter.qs
-        serializer = BookingSerializer(filtered_bookings, many=True,context = {'request': request})
+
+    def get_queryset(self):
+        return Booking.objects.filter(user=self.request.user)
+
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = []  # Add any search fields if needed
+    ordering_fields = ['created_at']  # Add fields to allow ordering if needed
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class BookingDetailsView(generics.RetrieveAPIView):
@@ -158,7 +169,6 @@ class PaymentView(APIView):
                 room = Room.objects.get(id=package_id)
             except Room.DoesNotExist:
                 return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
-            
 
             if room.available_rooms<=0 or not room.availability:
                 return Response({'error':'Room is not available'},status=status.HTTP_400_BAD_REQUEST)
@@ -297,6 +307,12 @@ class PaymentConfirmationView(APIView):
                 hotel.room.available_rooms -=  1
                 hotel.room.save()
                 email = hotel.contact_email
+                phone = hotel.contact_phone
+                from_city = hotel.hotel.city
+                to_city = None
+                start_date = hotel.check_in_date
+                end_date = hotel.check_out_date
+                people = hotel.total_guests
                 hotel.save()
             elif booking.car:
                 car = CarReservation.objects.get(id=booking.car.id)
@@ -304,6 +320,12 @@ class PaymentConfirmationView(APIView):
                 car.car.available_cars -= 1
                 car.car.save()
                 email = car.contact_email
+                phone = car.contact_phone
+                start_date = car.rental_start_date
+                end_date = car.rental_end_date
+                people = car.passenger
+                from_city = car.car.origin_city
+                to_city = car.car.destination_city
                 car.save()
             elif booking.flight:
                 flight = FlightReservation.objects.get(id=booking.flight.id)
@@ -311,6 +333,12 @@ class PaymentConfirmationView(APIView):
                 flight.flight.available_seats -= 1
                 flight.flight.save()
                 email = flight.contact_email
+                phone = flight.contact_phone
+                start_date = flight.departure_on
+                end_date = None
+                people = flight.passenger
+                from_city = flight.flight.departure_airport.city
+                to_city = flight.flight.arrival_airport.city
                 flight.save()
             elif booking.bus:
                 bus = BusReservation.objects.get(id=booking.bus.id)
@@ -318,11 +346,23 @@ class PaymentConfirmationView(APIView):
                 bus.bus.available_seats -= 1
                 bus.bus.save()
                 email = bus.contact_email
+                phone = bus.contact_phone
+                start_date = bus.departure_on
+                end_date = None
+                people = bus.passenger
+                from_city = bus.bus.departure_station
+                to_city = bus.bus.arrival_station
                 bus.save()
             elif booking.package:
                 package = PackageReservation.objects.get(id=booking.package.id)
                 package.status = 'confirmed'
                 email = package.contact_email
+                phone = package.contact_phone
+                start_date = None
+                end_date = None
+                people = package.passenger
+                from_city = package.package.origin_city
+                to_city = package.package.destination_city
                 package.save()
 
 
@@ -332,7 +372,32 @@ class PaymentConfirmationView(APIView):
                 'date':booking.booking_date,
                 'amount':booking.payment_amount
             }
+            pdf_params = {
+                'booking_id':booking.id,
+                'booking_date':datetime.strptime(str(booking.booking_date), "%Y-%m-%d %H:%M:%S.%f%z").strftime("%d %B %Y"),
+                "email": email,
+                "phone": phone,
+                "make": car.car.make if booking.car else None,
+                "model": car.car.model if booking.car else None,
+                "hotel_name": hotel.hotel.name if booking.hotel else None,
+                "hotel_city": hotel.hotel.city if booking.hotel else None,
+                "room_type": hotel.room.room_type if booking.hotel else None,
+                "flight_number": flight.flight.flight_number if booking.flight else None,
+                "flight_name": flight.flight.name if booking.flight else None,
+                "bus_number": bus.bus.bus_number if booking.bus else None,
+                "bus_type": bus.bus.bus_type if booking.bus else None,
+                "bus_operator": bus.bus.operator if booking.bus else None,
+                "people": people,
+                "from": from_city,
+                "to": to_city,
+                "start_date": datetime.strptime(str(start_date), "%Y-%m-%d").strftime("%d %B %Y"),
+                "end_date": datetime.strptime(str(end_date), "%Y-%m-%d").strftime("%d %B %Y")
+            }
+
             email_sent = send_booking_confirmation_email(context)
+
+            pdf_content = save_pdf(pdf_params)
+            booking.pdf.save(f'{uuid.uuid4()}.pdf',ContentFile(pdf_content))
 
             return Response({'message':'your booking has been confirmed.'},status=status.HTTP_200_OK)
         except Exception as e:

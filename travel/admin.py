@@ -3,7 +3,7 @@ from .models import *
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ('user', 'get_booking_type', 'status', 'check_in_date', 'check_out_date')
+    list_display = ('user', 'get_booking_type', 'status', 'booking_date')
 
     def get_booking_type(self, obj):
         if obj.hotel:
@@ -36,9 +36,13 @@ class HotelAdmin(admin.ModelAdmin):
 class HotelAmenityAdmin(admin.ModelAdmin):
     pass
 
+class CarImageAdmin(admin.StackedInline):
+    model = CarImage
+
 @admin.register(Car)
 class CarAdmin(admin.ModelAdmin):
     list_display = ('name', 'city', 'car_type')
+    inlines = [CarImageAdmin]
 
 @admin.register(AdImage)
 class AdImageAdmin(admin.ModelAdmin):
@@ -74,7 +78,7 @@ class BusAdmin(admin.ModelAdmin):
 
 @admin.register(Offer)
 class OfferAdmin(admin.ModelAdmin):
-    list_display = ('code', 'description', 'discount_percent', 'start_date', 'end_date')
+    list_display = ('code','image', 'discount_percent', 'start_date', 'end_date')
     list_filter = ('start_date', 'end_date')
     search_fields = ('code', 'description')
 
