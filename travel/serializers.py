@@ -209,6 +209,10 @@ class ForexCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Forex
         fields = ['name','email','location', 'currency', 'quantity', 'purpose_of_visit', 'booking_currency_for', 'amount','action']
+class VisaCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Visa
+        fields = ['name','email','visa_type','traveller']
         
 class DubaiActivitySerializer(serializers.ModelSerializer):
     class Meta:

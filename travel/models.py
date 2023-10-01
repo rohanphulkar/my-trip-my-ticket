@@ -395,6 +395,16 @@ class Forex(models.Model):
     
     def __str__(self):
         return f'{self.location} - {self.currency}'
+
+class Visa(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    name = models.CharField(max_length=100,default="")
+    email = models.EmailField(max_length=100,default="")
+    visa_type = models.CharField(max_length=100)
+    traveller = models.IntegerField(max_length=100,default=1)
+
+    def __str__(self):
+        return f'{self.email} - {self.visa_type} - {self.traveller}'
         
 class DubaiActivity(models.Model):
     name = models.CharField(max_length=200)

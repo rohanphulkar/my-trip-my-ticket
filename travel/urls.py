@@ -29,4 +29,5 @@ urlpatterns = [
     path('forex/create/', views.ForexCreateView.as_view(), name='forex-create'),
     path('activities/', views.DubaiActivityList.as_view(), name='activity-list'),
     path('activities/<int:pk>/', views.DubaiActivityDetail.as_view(), name='activity-detail'),
+    path("visa/", views.VisaCreateView.as_view(), name="visa")
 ]

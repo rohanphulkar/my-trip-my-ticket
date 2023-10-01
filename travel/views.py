@@ -501,6 +501,9 @@ class ContactAPIView(APIView):
 class ForexCreateView(generics.CreateAPIView):
     queryset = Forex.objects.all()
     serializer_class = ForexCreateSerializer
+class VisaCreateView(generics.CreateAPIView):
+    queryset = Visa.objects.all()
+    serializer_class = VisaCreateSerializer
 
 from django.apps import apps
 import uuid
