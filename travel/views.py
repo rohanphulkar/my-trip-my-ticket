@@ -1,4 +1,4 @@
-from django.shortcuts import redirect,render
+from django.shortcuts import redirect,render,HttpResponse
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from rest_framework import status,filters, generics
@@ -7,7 +7,6 @@ from .serializers import *
 from .models import *
 from django_filters.rest_framework import DjangoFilterBackend
 from decouple import config
-import razorpay
 from .helper import send_booking_confirmation_email,send_booking_cancellation_email,save_pdf
 from datetime import date
 from .filters import *
@@ -17,8 +16,18 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date,datetime
 from django.core.files.base import ContentFile
-client = razorpay.Client(auth=(config('RZP_KEY'), config('RZP_SECRET')))
+from .ccavutil import encrypt,decrypt
+from .ccavResponseHandler import res
+from string import Template
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse, parse_qs
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from shortuuid import ShortUUID
 
+accessCode=config('ACCESS_KEY')
+workingKey = config('WORKING_KEY')
+merchantId= config('MERCHANT_ID')
 
 
 class BookingListView(generics.ListAPIView):
@@ -29,12 +38,7 @@ class BookingListView(generics.ListAPIView):
     filterset_class = BookingFilter
     filter_fields = ["status"]
     
-# class UserBookingsView(APIView):
-#     permission_classes = [IsAuthenticated]
-#     def get(self, request):
-#         bookings = Booking.objects.filter(user=request.user)
-#         serializer = BookingSerializer(bookings, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class UserBookingsView(generics.ListAPIView):
     serializer_class = BookingSerializer
@@ -126,6 +130,48 @@ class PackageDetailsView(generics.RetrieveAPIView):
     queryset = Package.objects.all()
     serializer_class = PackageSerializer
 
+class YachtList(generics.ListAPIView):
+    queryset = Yacht.objects.all()
+    serializer_class = YachtSerializer
+
+class YachtDetail(generics.RetrieveAPIView):
+    queryset = Yacht.objects.all()
+    serializer_class = YachtSerializer
+
+
+class ThemeParkList(generics.ListAPIView):
+    queryset = ThemePark.objects.all()
+    serializer_class = ThemeParkSerializer
+
+class TopAttractionList(generics.ListAPIView):
+    queryset = TopAttraction.objects.all()
+    serializer_class = TopAttractionSerializer
+
+class DesertSafariList(generics.ListAPIView):
+    queryset = DesertSafari.objects.all()
+    serializer_class = DesertSafariSerializer
+
+class WaterParkList(generics.ListAPIView):
+    queryset = WaterPark.objects.all()
+    serializer_class = WaterParkSerializer
+
+class WaterActivityList(generics.ListAPIView):
+    queryset = WaterActivity.objects.all()
+    serializer_class = WaterActivitySerializer
+
+class AdventureTourList(generics.ListAPIView):
+    queryset = AdventureTour.objects.all()
+    serializer_class = AdventureTourSerializer
+
+class ComboTourList(generics.ListAPIView):
+    queryset = ComboTour.objects.all()
+    serializer_class = ComboTourSerializer
+
+class DubaiActivityList(generics.ListAPIView):
+    queryset = DubaiActivity.objects.all()
+    serializer_class = DubaiActivitySerializer
+
+
 class OfferListView(generics.ListAPIView):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
@@ -155,14 +201,13 @@ class PaymentView(APIView):
     def post(self,request):
         package_type = request.data.get('package_type',None)
         user = request.user
-        user_obj = {'name':user.name,"email":user.email,'phone':user.phone}
-        promo_code = request.data.get('promo_code',None)
+        promo_code = request.data.get('promo_code','')
         people = request.data.get('people',1)
         package_id = request.data.get('package_id',None)
         contact_email = request.data.get('email',None)
         contact_phone = request.data.get('phone',None)
         startDate = request.data.get('start_date',None)
-        endDate = request.data.get('end_date',None)
+        endDate = request.data.get('end_date','')
 
         if package_type == 'hotel':
             try:
@@ -212,8 +257,73 @@ class PaymentView(APIView):
                 package = Package.objects.get(id=package_id)
             except Package.DoesNotExist:
                 return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
-            reservation = PackageReservation.objects.create(user=user,package=package,passenger=people)
+            reservation = PackageReservation.objects.create(user=user,package=package,passenger=people,contact_email=contact_email,contact_phone=contact_phone)
             amount = package.price * int(people)
+            
+        elif package_type == 'yacht':
+            try:
+                package = Yacht.objects.get(id=package_id)
+            except Package.DoesNotExist:
+                return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
+            reservation = YachtReservation.objects.create(user=user,yacht=package,passenger=people,contact_email=contact_email,contact_phone=contact_phone)
+            amount = package.charter_price * int(people)
+        elif package_type == 'theme-park':
+            try:
+                package = ThemePark.objects.get(id=package_id)
+            except Package.DoesNotExist:
+                return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
+            reservation = ThemeParkReservation.objects.create(user=user,theme_park=package,admission_count=people,contact_email=contact_email,contact_phone=contact_phone)
+            amount = package.price * int(people)
+        elif package_type == 'top-attraction':
+            try:
+                package = TopAttraction.objects.get(id=package_id)
+            except Package.DoesNotExist:
+                return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
+            reservation = TopAttractionReservation.objects.create(user=user,top_attraction=package,ticket_count=people,contact_email=contact_email,contact_phone=contact_phone)
+            amount = package.price * int(people)
+        elif package_type == 'desert-safari':
+            try:
+                package = DesertSafari.objects.get(id=package_id)
+            except Package.DoesNotExist:
+                return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
+            reservation = DesertSafariReservation.objects.create(user=user,desert_safari=package,participant_count=people,contact_email=contact_email,contact_phone=contact_phone)
+            amount = package.price * int(people)
+        elif package_type == 'water-park':
+            try:
+                package = WaterPark.objects.get(id=package_id)
+            except Package.DoesNotExist:
+                return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
+            reservation = WaterParkReservation.objects.create(user=user,water_park=package,admission_count=people,contact_email=contact_email,contact_phone=contact_phone)
+            amount = package.price * int(people)
+        elif package_type == 'water-activity':
+            try:
+                package = WaterActivity.objects.get(id=package_id)
+            except Package.DoesNotExist:
+                return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
+            reservation = WaterActivityReservation.objects.create(user=user,water_activity=package,participant_count=people,contact_email=contact_email,contact_phone=contact_phone)
+            amount = package.price * int(people)
+        elif package_type == 'adventure-tour':
+            try:
+                package = AdventureTour.objects.get(id=package_id)
+            except Package.DoesNotExist:
+                return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
+            reservation = AdventureTourReservation.objects.create(user=user,adventure_tour=package,participant_count=people,contact_email=contact_email,contact_phone=contact_phone)
+            amount = package.price * int(people)
+        elif package_type == 'combo-tour':
+            try:
+                package = ComboTour.objects.get(id=package_id)
+            except Package.DoesNotExist:
+                return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
+            reservation = ComboTourReservation.objects.create(user=user,combo_tour=package,participant_count=people,contact_email=contact_email,contact_phone=contact_phone)
+            amount = package.price * int(people)
+        elif package_type == 'dubai-activity':
+            try:
+                package = DubaiActivity.objects.get(id=package_id)
+            except Package.DoesNotExist:
+                return Response({'error':'Invalid package id'},status=status.HTTP_404_NOT_FOUND)
+            reservation = DubaiActivityReservation.objects.create(user=user,dubai_activity=package,participant_count=people,contact_email=contact_email,contact_phone=contact_phone)
+            amount = package.price * int(people)
+        
         else:
             return Response({'error': 'Invalid booking type'}, status=status.HTTP_400_BAD_REQUEST)
     
@@ -229,11 +339,99 @@ class PaymentView(APIView):
                 return Response({'error':'Promo code is invalid'},status=status.HTTP_404_NOT_FOUND)
         
         try:
-            payment = client.order.create({
-                "amount":int(amount * 100),
-                "currency":"INR",
-                "payment_capture":"1"
-            })
+            p_merchant_id = merchantId
+            p_order_id = ShortUUID(alphabet='0123456789').random(length=10)
+            p_currency = 'INR'
+            p_amount = int(amount)
+            p_redirect_url = f"http://{request.headers['Host']}{reverse('payment_confirmation')}"
+            p_cancel_url = f"http://{request.headers['Host']}{reverse('payment_confirmation')}"
+            p_language = request.data.get('language', '')
+            p_billing_name = request.data.get('billing_name', 'Rohan Phulkar')
+            p_billing_address = request.data.get('billing_address', 'mali mohalla')
+            p_billing_city = request.data.get('billing_city', 'Maheshwar')
+            p_billing_state = request.data.get('billing_state', 'Madhya Pradesh')
+            p_billing_zip = request.data.get('billing_zip', '451224')
+            p_billing_country = request.data.get('billing_country', 'India')
+            p_billing_tel = request.data.get('billing_tel', '7400779162')
+            p_billing_email = request.data.get('billing_email', 'rohanphulkar936@gmail.com')
+            p_delivery_name = request.data.get('delivery_name', '')
+            p_delivery_address = request.data.get('delivery_address', '')
+            p_delivery_city = request.data.get('delivery_city', '')
+            p_delivery_state = request.data.get('delivery_state', '')
+            p_delivery_zip = request.data.get('delivery_zip', '')
+            p_delivery_country = request.data.get('delivery_country', '')
+            p_delivery_tel = request.data.get('delivery_tel', '')
+            p_merchant_param1 = request.data.get('merchant_param1', '')
+            p_merchant_param2 = request.data.get('merchant_param2', '')
+            p_merchant_param3 = request.data.get('merchant_param3', '')
+            p_merchant_param4 = request.data.get('merchant_param4', '')
+            p_merchant_param5 = request.data.get('merchant_param5', '')
+            p_integration_type = request.data.get('integration_type', '')
+            p_promo_code = request.data.get('cc_promo_code', '')
+            p_customer_identifier = request.data.get('customer_identifier', '')
+            
+
+            merchant_data = (
+                f'merchant_id={p_merchant_id}&'
+                f'order_id={p_order_id}&'
+                f'currency={p_currency}&'
+                f'amount={p_amount}&'
+                f'redirect_url={p_redirect_url}&'
+                f'cancel_url={p_cancel_url}&'
+                f'language={p_language}&'
+                f'billing_name={p_billing_name}&'
+                f'billing_address={p_billing_address}&'
+                f'billing_city={p_billing_city}&'
+                f'billing_state={p_billing_state}&'
+                f'billing_zip={p_billing_zip}&'
+                f'billing_country={p_billing_country}&'
+                f'billing_tel={p_billing_tel}&'
+                f'billing_email={p_billing_email}&'
+                f'delivery_name={p_delivery_name}&'
+                f'delivery_address={p_delivery_address}&'
+                f'delivery_city={p_delivery_city}&'
+                f'delivery_state={p_delivery_state}&'
+                f'delivery_zip={p_delivery_zip}&'
+                f'delivery_country={p_delivery_country}&'
+                f'delivery_tel={p_delivery_tel}&'
+                f'merchant_param1={p_merchant_param1}&'
+                f'merchant_param2={p_merchant_param2}&'
+                f'merchant_param3={p_merchant_param3}&'
+                f'merchant_param4={p_merchant_param4}&'
+                f'merchant_param5={p_merchant_param5}&'
+                f'integration_type={p_integration_type}&'
+                f'promo_code={p_promo_code}&'
+                f'customer_identifier={p_customer_identifier}&'
+            )
+
+            encryption = encrypt(merchant_data, workingKey)
+
+            html = '''\
+        <html>
+        <head>
+            <title>Sub-merchant checkout page</title>
+            <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        </head>
+        <body>
+            <center>
+            <!-- width required minimum 482px -->
+                <iframe  width="482" height="500" scrolling="No" frameborder="0"  id="paymentFrame" src="https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction&merchant_id=$mid&encRequest=$encReq&access_code=$xscode">
+                </iframe>
+            </center>
+
+            <script type="text/javascript">
+                $(document).ready(function(){
+                    $('iframe#paymentFrame').load(function() {
+                        window.addEventListener('message', function(e) {
+                            $("#paymentFrame").css("height", e.data['newHeight']+'px');
+                        }, false);
+                    });
+                });
+            </script>
+        </body>
+        </html>
+        '''
+
 
             booking = Booking.objects.create(
                 user = user,
@@ -242,166 +440,271 @@ class PaymentView(APIView):
                 car=reservation if package_type == 'car' else None,
                 flight=reservation if package_type == 'flight' else None,
                 bus=reservation if package_type == 'bus' else None,
+                yacht=reservation if package_type == 'yacht' else None,
+                theme_park=reservation if package_type == 'theme-park' else None,
+                top_attraction=reservation if package_type == 'top-attraction' else None,
+                desert_safari=reservation if package_type == 'desert-safari' else None,
+                water_park=reservation if package_type == 'water-park' else None,
+                water_activity=reservation if package_type == 'water-activity' else None,
+                adventure_tour=reservation if package_type == 'adventure-tour' else None,
+                combo_tour=reservation if package_type == 'combo-tour' else None,
+                dubai_activity=reservation if package_type == 'dubai-activity' else None,
                 payment_amount = amount,
-                order_id = payment['id']
+                order_id = p_order_id
             )
             
-            serializer = PaymentSerializer(booking,many=False)
 
-            data = {
-                'payment':payment,
-                "booking":serializer.data,
-                "user":user_obj
-            }
-            return Response(data,status=status.HTTP_200_OK)
+            fin = Template(html).safe_substitute(mid=p_merchant_id, encReq=encryption, xscode=accessCode)
+            soup = BeautifulSoup(fin, 'html.parser')
+
+            # Find the iframe element with the ID 'paymentFrame'
+            iframe = soup.find('iframe', {'id': 'paymentFrame'})
+
+            if iframe:
+                src = iframe['src']
+                parsed_url = urlparse(str(src))
+                query_params = parse_qs(parsed_url.query)
+
+                merchant_id = query_params.get('merchant_id', [None])[0]
+                encRequest = query_params.get('encRequest', [None])[0]
+                access_code = query_params.get('access_code', [None])[0]
+            return Response({'mid':merchant_id,'encReq':encRequest,"xscode":access_code,'url':str(src)},status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error':str(e)},status=status.HTTP_400_BAD_REQUEST)
         
 
 
-class PaymentConfirmationView(APIView):
-    def post(self,request):
+@csrf_exempt
+def PaymentConfirmationView(request):
+    if request.method =='POST':
         try:
-            res = request.data['response']
+            encrypted_response = request.POST.get('encResp')
+            plain_text = res(encrypted_response)
+            soup = BeautifulSoup(plain_text, 'html.parser')
 
-            global ord_id
-            global raz_pay_id
-            global raz_signature
+            order_status_element = soup.find('td', text='order_status')
+            order_id_element = soup.find('td', text='order_id')
 
-            for key in res.keys():
-                if key == 'razorpay_order_id':
-                    ord_id = res[key]
-                elif key == 'razorpay_payment_id':
-                    raz_pay_id = res[key]
-                elif key == 'razorpay_signature':
-                    raz_signature = res[key]
-            
-            booking = Booking.objects.get(order_id=ord_id)
-            
+            if order_status_element and order_id_element:
+                order_status = order_status_element.find_next('td').get_text().strip()
+                order_id = order_id_element.find_next('td').get_text().strip()
+            else:
+                return redirect(settings.FRONTEND_URL+ '/payment/failed')
 
-            data = {
-                'razorpay_order_id':ord_id,
-                'razorpay_payment_id':raz_pay_id,
-                'razorpay_signature':raz_signature
-            }
             
+            
+            booking = Booking.objects.get(order_id=order_id)
             if booking.status=='confirmed':
-                return Response({'message':'your booking has already been confirmed.'},status=status.HTTP_200_OK)
+                return redirect(settings.FRONTEND_URL+ '/payment/success')
+            if order_status=='Success':            
+                booking.status = 'confirmed'
+                booking.payment_status = 'paid'
+                booking.save()
+                if booking.hotel:
+                    hotel = HotelReservation.objects.get(id=booking.hotel.id)
+                    hotel.status = 'confirmed'
+                    hotel.room.available_rooms -=  1
+                    hotel.room.save()
+                    email = hotel.contact_email
+                    phone = hotel.contact_phone
+                    from_city = hotel.hotel.city
+                    to_city = None
+                    start_date = hotel.check_in_date
+                    end_date = hotel.check_out_date
+                    people = hotel.total_guests
+                    hotel.save()
+                elif booking.car:
+                    car = CarReservation.objects.get(id=booking.car.id)
+                    car.status = 'confirmed'
+                    car.car.available_cars -= 1
+                    car.car.save()
+                    email = car.contact_email
+                    phone = car.contact_phone
+                    start_date = car.rental_start_date
+                    end_date = car.rental_end_date
+                    people = car.passenger
+                    from_city = car.car.origin_city
+                    to_city = car.car.destination_city
+                    car.save()
+                elif booking.flight:
+                    flight = FlightReservation.objects.get(id=booking.flight.id)
+                    flight.status = 'confirmed'
+                    flight.flight.available_seats -= 1
+                    flight.flight.save()
+                    email = flight.contact_email
+                    phone = flight.contact_phone
+                    start_date = flight.departure_on
+                    end_date = None
+                    people = flight.passenger
+                    from_city = flight.flight.departure_airport.city
+                    to_city = flight.flight.arrival_airport.city
+                    flight.save()
+                elif booking.bus:
+                    bus = BusReservation.objects.get(id=booking.bus.id)
+                    bus.status = 'confirmed'
+                    bus.bus.available_seats -= 1
+                    bus.bus.save()
+                    email = bus.contact_email
+                    phone = bus.contact_phone
+                    start_date = bus.departure_on
+                    end_date = None
+                    people = bus.passenger
+                    from_city = bus.bus.departure_station
+                    to_city = bus.bus.arrival_station
+                    bus.save()
+                elif booking.package:
+                    package = PackageReservation.objects.get(id=booking.package.id)
+                    package.status = 'confirmed'
+                    email = package.contact_email
+                    phone = package.contact_phone
+                    start_date = None
+                    end_date = None
+                    people = package.passenger
+                    from_city = package.package.origin_city
+                    to_city = package.package.destination_city
+                    package.save()
+                elif booking.yacht:
+                    package = YachtReservation.objects.get(id=booking.package.id)
+                    package.status = 'confirmed'
+                    email = package.contact_email
+                    phone = package.contact_phone
+                    start_date = None
+                    end_date = None
+                    people = package.passenger
+                    from_city = None
+                    to_city = None
+                    package.save()
+                elif booking.theme_park:
+                    package = ThemeParkReservation.objects.get(id=booking.package.id)
+                    package.status = 'confirmed'
+                    email = package.contact_email
+                    phone = package.contact_phone
+                    start_date = None
+                    end_date = None
+                    people = package.admission_count
+                    from_city = None
+                    to_city = None
+                    package.save()
+                elif booking.top_attraction:
+                    package = TopAttractionReservation.objects.get(id=booking.package.id)
+                    package.status = 'confirmed'
+                    email = package.contact_email
+                    phone = package.contact_phone
+                    start_date = None
+                    end_date = None
+                    people = package.ticket_count
+                    from_city = None
+                    to_city = None
+                    package.save()
+                elif booking.desert_safari:
+                    package = DesertSafariReservation.objects.get(id=booking.package.id)
+                    package.status = 'confirmed'
+                    email = package.contact_email
+                    phone = package.contact_phone
+                    start_date = None
+                    end_date = None
+                    people = package.participant_count
+                    from_city = None
+                    to_city = None
+                    package.save()
+                elif booking.water_park:
+                    package = WaterParkReservation.objects.get(id=booking.package.id)
+                    package.status = 'confirmed'
+                    email = package.contact_email
+                    phone = package.contact_phone
+                    start_date = None
+                    end_date = None
+                    people = package.admission_count
+                    from_city = None
+                    to_city = None
+                    package.save()
+                elif booking.water_activity:
+                    package = WaterActivityReservation.objects.get(id=booking.package.id)
+                    package.status = 'confirmed'
+                    email = package.contact_email
+                    phone = package.contact_phone
+                    start_date = None
+                    end_date = None
+                    people = package.participant_count
+                    from_city = None
+                    to_city = None
+                    package.save()
+                elif booking.adventure_tour:
+                    package = AdventureTourReservation.objects.get(id=booking.package.id)
+                    package.status = 'confirmed'
+                    email = package.contact_email
+                    phone = package.contact_phone
+                    start_date = None
+                    end_date = None
+                    people = package.participant_count
+                    from_city = None
+                    to_city = None
+                    package.save()
+                elif booking.combo_tour:
+                    package = ComboTourReservation.objects.get(id=booking.package.id)
+                    package.status = 'confirmed'
+                    email = package.contact_email
+                    phone = package.contact_phone
+                    start_date = None
+                    end_date = None
+                    people = package.participant_count
+                    from_city = None
+                    to_city = None
+                    package.save()
+                elif booking.dubai_activity:
+                    package = DubaiActivityReservation.objects.get(id=booking.package.id)
+                    package.status = 'confirmed'
+                    email = package.contact_email
+                    phone = package.contact_phone
+                    start_date = None
+                    end_date = None
+                    people = package.participant_count
+                    from_city = None
+                    to_city = None
+                    package.save()
+
+                
+                context = {
+                    'email':email,
+                    'id':booking.id,
+                    'date':booking.booking_date,
+                    'amount':booking.payment_amount
+                }
+                pdf_params = {
+                    'booking_id':booking.id,
+                    'booking_date':datetime.strptime(str(booking.booking_date), "%Y-%m-%d %H:%M:%S.%f%z").strftime("%d %B %Y"),
+                    "email": email,
+                    "phone": phone,
+                    "make": car.car.make if booking.car else None,
+                    "model": car.car.model if booking.car else None,
+                    "hotel_name": hotel.hotel.name if booking.hotel else None,
+                    "hotel_city": hotel.hotel.city if booking.hotel else None,
+                    "room_type": hotel.room.room_type if booking.hotel else None,
+                    "flight_number": flight.flight.flight_number if booking.flight else None,
+                    "flight_name": flight.flight.name if booking.flight else None,
+                    "bus_number": bus.bus.bus_number if booking.bus else None,
+                    "bus_type": bus.bus.bus_type if booking.bus else None,
+                    "bus_operator": bus.bus.operator if booking.bus else None,
+                    "people": people,
+                    "from": from_city,
+                    "to": to_city,
+                    "start_date": datetime.strptime(str(start_date), "%Y-%m-%d").strftime("%d %B %Y") if start_date else '',
+                    "end_date": datetime.strptime(str(end_date), "%Y-%m-%d").strftime("%d %B %Y") if end_date else ''
+                }
+                email_sent = send_booking_confirmation_email(context)
+                pdf_content = save_pdf(pdf_params)
+                booking.pdf.save(f'{uuid.uuid4()}.pdf',ContentFile(pdf_content))
+                return redirect(settings.FRONTEND_URL+ '/payment/success')
             
-            def verify_signature(data):
-                return client.utility.verify_payment_signature(data)
-            
-            if not verify_signature(data):
+            else:
                 booking.status = 'failed'
                 booking.payment_status = 'failed'
                 booking.save()
-                return Response({'error':'payment failed'},status=status.HTTP_400_BAD_REQUEST)
-
-            booking.status = 'confirmed'
-            booking.payment_status = 'paid'
-            booking.payment_id = raz_pay_id
-            booking.save()
-            if booking.hotel:
-                hotel = HotelReservation.objects.get(id=booking.hotel.id)
-                hotel.status = 'confirmed'
-                hotel.room.available_rooms -=  1
-                hotel.room.save()
-                email = hotel.contact_email
-                phone = hotel.contact_phone
-                from_city = hotel.hotel.city
-                to_city = None
-                start_date = hotel.check_in_date
-                end_date = hotel.check_out_date
-                people = hotel.total_guests
-                hotel.save()
-            elif booking.car:
-                car = CarReservation.objects.get(id=booking.car.id)
-                car.status = 'confirmed'
-                car.car.available_cars -= 1
-                car.car.save()
-                email = car.contact_email
-                phone = car.contact_phone
-                start_date = car.rental_start_date
-                end_date = car.rental_end_date
-                people = car.passenger
-                from_city = car.car.origin_city
-                to_city = car.car.destination_city
-                car.save()
-            elif booking.flight:
-                flight = FlightReservation.objects.get(id=booking.flight.id)
-                flight.status = 'confirmed'
-                flight.flight.available_seats -= 1
-                flight.flight.save()
-                email = flight.contact_email
-                phone = flight.contact_phone
-                start_date = flight.departure_on
-                end_date = None
-                people = flight.passenger
-                from_city = flight.flight.departure_airport.city
-                to_city = flight.flight.arrival_airport.city
-                flight.save()
-            elif booking.bus:
-                bus = BusReservation.objects.get(id=booking.bus.id)
-                bus.status = 'confirmed'
-                bus.bus.available_seats -= 1
-                bus.bus.save()
-                email = bus.contact_email
-                phone = bus.contact_phone
-                start_date = bus.departure_on
-                end_date = None
-                people = bus.passenger
-                from_city = bus.bus.departure_station
-                to_city = bus.bus.arrival_station
-                bus.save()
-            elif booking.package:
-                package = PackageReservation.objects.get(id=booking.package.id)
-                package.status = 'confirmed'
-                email = package.contact_email
-                phone = package.contact_phone
-                start_date = None
-                end_date = None
-                people = package.passenger
-                from_city = package.package.origin_city
-                to_city = package.package.destination_city
-                package.save()
-
-
-            context = {
-                'email':email,
-                'id':booking.id,
-                'date':booking.booking_date,
-                'amount':booking.payment_amount
-            }
-            pdf_params = {
-                'booking_id':booking.id,
-                'booking_date':datetime.strptime(str(booking.booking_date), "%Y-%m-%d %H:%M:%S.%f%z").strftime("%d %B %Y"),
-                "email": email,
-                "phone": phone,
-                "make": car.car.make if booking.car else None,
-                "model": car.car.model if booking.car else None,
-                "hotel_name": hotel.hotel.name if booking.hotel else None,
-                "hotel_city": hotel.hotel.city if booking.hotel else None,
-                "room_type": hotel.room.room_type if booking.hotel else None,
-                "flight_number": flight.flight.flight_number if booking.flight else None,
-                "flight_name": flight.flight.name if booking.flight else None,
-                "bus_number": bus.bus.bus_number if booking.bus else None,
-                "bus_type": bus.bus.bus_type if booking.bus else None,
-                "bus_operator": bus.bus.operator if booking.bus else None,
-                "people": people,
-                "from": from_city,
-                "to": to_city,
-                "start_date": datetime.strptime(str(start_date), "%Y-%m-%d").strftime("%d %B %Y"),
-                "end_date": datetime.strptime(str(end_date), "%Y-%m-%d").strftime("%d %B %Y")
-            }
-
-            email_sent = send_booking_confirmation_email(context)
-
-            pdf_content = save_pdf(pdf_params)
-            booking.pdf.save(f'{uuid.uuid4()}.pdf',ContentFile(pdf_content))
-
-            return Response({'message':'your booking has been confirmed.'},status=status.HTTP_200_OK)
+                return redirect(settings.FRONTEND_URL+ '/payment/failed')
         except Exception as e:
-            return Response({'error':str(e)},status=status.HTTP_400_BAD_REQUEST)
+            print(e)
+            return redirect(settings.FRONTEND_URL+ '/payment/failed')
+    
 
 class BookingCancelView(APIView):
     permission_classes = [IsAuthenticated]
@@ -414,16 +717,24 @@ class BookingCancelView(APIView):
             try:
                 refund_amount = int(booking.payment_amount * 100)
 
-                refund_data = {
-                    'amount':refund_amount,
-                    'currency':'INR',
-                    'speed':'normal'
-                }
-
-                refund = client.payment.refund(booking.payment_id,refund_data)
-
-                if refund.get('error_code') is not None:
-                    return Response({'error': 'Refund not successful'}, status=status.HTTP_400_BAD_REQUEST)
+                refund = RefundRequest.objects.create(
+                    user = booking.user,
+                    hotel=booking.hotel or None,
+                    car = booking.car or None,
+                    flight = booking.flight or None,
+                    bus = booking.bus or None,
+                    package = booking.package or None,
+                    theme_park = booking.theme_park or None,
+                    top_attraction = booking.top_attraction or None,
+                    desert_safari = booking.desert_safari or None,
+                    water_park = booking.water_park or None,
+                    water_activity = booking.water_activity or None,
+                    adventure_tour = booking.adventure_tour or None,
+                    combo_tour = booking.combo_tour or None,
+                    dubai_activity = booking.dubai_activity or None,
+                    order_id = booking.order_id,
+                    refund_amount = refund_amount
+                )
                 
                 booking.status = 'cancelled'
                 booking.save()
@@ -458,6 +769,51 @@ class BookingCancelView(APIView):
                     bus.save()
                 elif booking.package:
                     package = PackageReservation.objects.get(id=booking.package.id)
+                    package.status = 'cancelled'
+                    email = package.contact_email
+                    package.save()
+                elif booking.yacht:
+                    package = YachtReservation.objects.get(id=booking.package.id)
+                    package.status = 'cancelled'
+                    email = package.contact_email
+                    package.save()
+                elif booking.theme_park:
+                    package = ThemeParkReservation.objects.get(id=booking.package.id)
+                    package.status = 'cancelled'
+                    email = package.contact_email
+                    package.save()
+                elif booking.top_attraction:
+                    package = TopAttractionReservation.objects.get(id=booking.package.id)
+                    package.status = 'cancelled'
+                    email = package.contact_email
+                    package.save()
+                elif booking.desert_safari:
+                    package = DesertSafariReservation.objects.get(id=booking.package.id)
+                    package.status = 'cancelled'
+                    email = package.contact_email
+                    package.save()
+                elif booking.water_park:
+                    package = WaterParkReservation.objects.get(id=booking.package.id)
+                    package.status = 'cancelled'
+                    email = package.contact_email
+                    package.save()
+                elif booking.water_activity:
+                    package = WaterActivityReservation.objects.get(id=booking.package.id)
+                    package.status = 'cancelled'
+                    email = package.contact_email
+                    package.save()
+                elif booking.adventure_tour:
+                    package = AdventureTourReservation.objects.get(id=booking.package.id)
+                    package.status = 'cancelled'
+                    email = package.contact_email
+                    package.save()
+                elif booking.combo_tour:
+                    package = ComboTourReservation.objects.get(id=booking.package.id)
+                    package.status = 'cancelled'
+                    email = package.contact_email
+                    package.save()
+                elif booking.dubai_activity:
+                    package = DubaiActivityReservation.objects.get(id=booking.package.id)
                     package.status = 'cancelled'
                     email = package.contact_email
                     package.save()

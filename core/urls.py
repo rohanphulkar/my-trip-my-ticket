@@ -9,6 +9,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("user/",include("accounts.urls")),
     path("api/", include('travel.urls')),
+    path("blog/", include('blog.urls')),
+    path('froala_editor/', include('froala_editor.urls')),
     path('openapi', get_schema_view(
         title="My Trip My Ticket",
         description="",

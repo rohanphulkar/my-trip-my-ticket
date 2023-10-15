@@ -12,6 +12,7 @@ class HotelAmenitySerializer(serializers.ModelSerializer):
 
 class RoomSerializer(serializers.ModelSerializer):
     amenities = serializers.SerializerMethodField('get_amenities')
+    image = serializers.SerializerMethodField('get_image_url')
     class Meta:
         model = Room
         fields =['id', 'hotel', 'room_type', 'capacity', 'price', 'availability', 'image', 'bed_type', 'view', 'smoking_allowed', 'pet_friendly','amenities']
@@ -21,9 +22,40 @@ class RoomSerializer(serializers.ModelSerializer):
         serializer = HotelAmenitySerializer(amenities,many=True)
         return serializer.data
     
+    def get_image_url(self, obj):
+        if obj.image:
+            return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
+        return None
+    
         
+class YachtImageSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = YachtImage
+        fields = "__all__"
+    
+    
+        
+class YachtSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField('get_yacht_images')
+    image = serializers.SerializerMethodField('get_image_url')
+    class Meta:
+        model = Yacht
+        fields = "__all__"
 
+        
+    def get_yacht_images(self, obj):
+        images = YachtImage.objects.filter(yacht=obj.id)
+        serializer = YachtImageSerializer(images, many=True)
+        return [{'id':image['id'],'image':self._get_image_url(image['image'])} for image in serializer.data]
 
+    def _get_image_url(self, image_path):
+        return self.context['request'].build_absolute_uri('https://mytripmyticket.co.in/' + image_path.replace('/media/',''))
+    
+    def get_image_url(self, obj):
+            if obj.image:
+                return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
+            return None
 
 class HotelImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,6 +67,7 @@ class HotelSerializer(serializers.ModelSerializer):
     hotel_images = serializers.SerializerMethodField('get_hotel_images')
     available_rooms = serializers.SerializerMethodField('get_available_rooms')
     rooms = RoomSerializer(many=True,read_only=True)
+    image = serializers.SerializerMethodField('get_image_url')
     class Meta:
         model = Hotel
         fields = ['id', 'name','description', 'address', 'country', 'state', 'city', 'pin', 'email', 'phone_number', 'star_category', 'amenities', 'tax_percent', 'tax_type', 'price', 'image', 'total_rooms', 'available_rooms', 'available_from', 'available_to', 'website', 'wifi_available', 'parking_available','rooms','hotel_images']
@@ -45,7 +78,12 @@ class HotelSerializer(serializers.ModelSerializer):
         return [{'id':image['id'],'image':self._get_image_url(image['image'])} for image in serializer.data]
 
     def _get_image_url(self, image_path):
-        return self.context['request'].build_absolute_uri(settings.MEDIA_URL + image_path.replace('/media/',''))
+        return self.context['request'].build_absolute_uri('https://mytripmyticket.co.in/' + image_path.replace('/media/',''))
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
+        return None
     
     def get_available_rooms(self,obj):
         total_available_rooms = Room.objects.filter(hotel=obj.id).aggregate(total_available_rooms=Sum('available_rooms'))['total_available_rooms']
@@ -64,9 +102,11 @@ class CarImageSerializer(serializers.ModelSerializer):
         model = CarImage
         fields = ('id','image')
 
+
 class CarSerializer(serializers.ModelSerializer):
     car_type = CarTypeSerializer(many=False,read_only=True)
     car_images = serializers.SerializerMethodField('get_car_images')
+    image = serializers.SerializerMethodField('get_image_url')
     
     class Meta:
         model = Car
@@ -78,20 +118,36 @@ class CarSerializer(serializers.ModelSerializer):
         return [{'id':image['id'],'image':self._get_image_url(image['image'])} for image in serializer.data]
 
     def _get_image_url(self, image_path):
-        return self.context['request'].build_absolute_uri(settings.MEDIA_URL + image_path.replace('/media/',''))
+        return self.context['request'].build_absolute_uri('https://mytripmyticket.co.in/' + image_path.replace('/media/',''))
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
+        return None
 
 class AdImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField('get_image_url')
     class Meta:
         model = AdImage
         fields = ['id','image']
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
+        return None
 
 
 # Flight Serializers
 
 class AirlineSerializer(serializers.ModelSerializer):
+    image  = serializers.SerializerMethodField('get_image_url')
     class Meta:
         model = Airline
         fields = "__all__"
+    def get_image_url(self, obj):
+        if obj.image:
+            return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
+        return None
 
 class AirportSerializer(serializers.ModelSerializer):
     class Meta:
@@ -108,9 +164,15 @@ class FlightSerializer(serializers.ModelSerializer):
     arrival_airport = AirportSerializer(many=False,read_only=True)
     airline = AirlineSerializer(many=False,read_only=True)
     amenities = FlightAmenitySerializer(many=True,read_only=True)
+    image = serializers.SerializerMethodField('get_image_url')
     class Meta:
         model = Flight
         fields = "__all__"
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
+        return None
 
 
 # Bus Serializers
@@ -126,9 +188,15 @@ class BusSerializer(serializers.ModelSerializer):
         fields = ['id', 'bus_number', 'bus_type', 'operator', 'departure_station', 'arrival_station', 'departure_date', 'departure_time', 'arrival_date', 'arrival_time', 'duration', 'price', 'total_seats', 'available_seats', 'amenities', 'wifi_available', 'power_outlets_available', 'refreshments_served']
 
 class OfferSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField('get_image_url')
     class Meta:
         model = Offer
         fields = "__all__"
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
+        return None
 
 
 
@@ -137,11 +205,16 @@ class PackageSerializer(serializers.ModelSerializer):
     cars = CarSerializer(many=True)
     buses = BusSerializer(many=True)
     hotels = HotelSerializer(many=True)
+    image = serializers.SerializerMethodField('get_image_url')
     
     class Meta:
         model = Package
-        fields = ['id', 'name', 'image', 'origin_city', 'destination_city', 'price', 'flights', 'cars', 'buses', 'hotels', 'activities', 'duration', 'included_meals', 'departure', 'with_flights', 'total_rooms']
-
+        fields = ['id', 'name', 'image', 'origin_city', 'destination_city','category', 'price', 'flights', 'cars', 'buses', 'hotels', 'activities', 'duration', 'included_meals', 'departure', 'with_flights', 'total_rooms']
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
+        return None
 
 class ReservationSerializer(serializers.ModelSerializer):
     user = UserSerializer(many=False,read_only=True)
@@ -154,6 +227,12 @@ class HotelReservationSerializer(serializers.ModelSerializer):
     room = RoomSerializer(many=False,read_only=True)
     class Meta:
         model = HotelReservation
+        fields = '__all__'
+        
+class YachtReservationSerializer(serializers.ModelSerializer):
+    yacht  = YachtSerializer(many=False,read_only=True)
+    class Meta:
+        model = YachtReservation
         fields = '__all__'
 
 class CarReservationSerializer(serializers.ModelSerializer):
@@ -189,6 +268,7 @@ class BookingSerializer(serializers.ModelSerializer):
     flight = FlightReservationSerializer(read_only=True,many=False)
     bus = BusReservationSerializer(read_only=True,many=False)
     package = PackageReservationSerializer(read_only=True,many=False)
+    yacht = YachtReservationSerializer(read_only=True,many=False)
     class Meta:
         model = Booking
         fields = '__all__'
@@ -212,9 +292,84 @@ class ForexCreateSerializer(serializers.ModelSerializer):
 class VisaCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Visa
-        fields = ['name','email','visa_type','traveller']
+        fields = ['name','email','country','visa_type','traveller']
         
+class ThemeParkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ThemePark
+        fields = '__all__'
+
+class TopAttractionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TopAttraction
+        fields = '__all__'
+
+class DesertSafariSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DesertSafari
+        fields = '__all__'
+
+class WaterParkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WaterPark
+        fields = '__all__'
+
+class WaterActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WaterActivity
+        fields = '__all__'
+
+class AdventureTourSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdventureTour
+        fields = '__all__'
+
+class ComboTourSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComboTour
+        fields = '__all__'
+
 class DubaiActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = DubaiActivity
-        fields = ('id', 'name', 'description', 'image', 'price')
+        fields = '__all__'
+
+class ThemeParkReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ThemeParkReservation
+        fields = '__all__'
+
+class TopAttractionReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TopAttractionReservation
+        fields = '__all__'
+
+class DesertSafariReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DesertSafariReservation
+        fields = '__all__'
+
+class WaterParkReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WaterParkReservation
+        fields = '__all__'
+
+class WaterActivityReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WaterActivityReservation
+        fields = '__all__'
+
+class AdventureTourReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdventureTourReservation
+        fields = '__all__'
+
+class ComboTourReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComboTourReservation
+        fields = '__all__'
+
+class DubaiActivityReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DubaiActivityReservation
+        fields = '__all__'

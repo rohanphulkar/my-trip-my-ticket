@@ -27,7 +27,7 @@ class LoginView(APIView):
             return Response({'message':'Account created successfully'},status=status.HTTP_200_OK)
         user = User.objects.get(email=email)
         if user.provider!='email':
-            return Response({'error':'Please try login through phone number or google acccount.'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error':'Please try login through phone number or google acccount.'},status=status.HTTP_401_UNAUTHORIZED)
         if not user.check_password(password):
             return Response({'error':'Invalid password'},status=status.HTTP_400_BAD_REQUEST)
         token = RefreshToken.for_user(user)
@@ -42,7 +42,7 @@ class SendOTPView(APIView):
         try:
             user = User.objects.get(phone=phone)
             if user.provider!='phone':
-                return Response({'error':'Please try login through email or google acccount.'},status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error':'Please try login through email or google acccount.'},status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
             user = User.objects.create(phone=phone,provider='phone')
         user.otp = otp

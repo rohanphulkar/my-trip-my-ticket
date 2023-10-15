@@ -44,7 +44,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'travel',
+    'blog',
     'django_filters',
+    'froala_editor',
 ]
 
 MIDDLEWARE = [
@@ -91,6 +93,8 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     }
 # }
 
+
+
 DATABASES = {
   'default': {
        'ENGINE': 'django.db.backends.mysql',
@@ -127,7 +131,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -170,15 +174,17 @@ FRONTEND_URL=config('FRONTEND_URL')
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
+EMAIL_HOST = 'smtp.hostinger.com'
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_PORT = 465
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
 LOGIN_REDIRECT_URL = '/'
 
-
+DEFAULT_FILE_STORAGE = 'storages.backends.ftp.FTPStorage'
+FTP_STORAGE_LOCATION = config("FTP_URL")
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=7)
@@ -233,3 +239,9 @@ LOGGING = {
         },
     },
 }
+
+
+FROALA_EDITOR_PLUGINS = ('align', 'char_counter', 'code_beautifier' ,'code_view', 'colors', 'draggable', 'emoticons',
+          'entities', 'file', 'font_family', 'font_size', 'fullscreen', 'image_manager', 'image', 'inline_style',
+          'line_breaker', 'link', 'lists', 'paragraph_format', 'paragraph_style', 'quick_insert', 'quote', 'save', 'table',
+          'url', 'video')

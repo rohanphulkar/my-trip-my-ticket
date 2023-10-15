@@ -2,9 +2,11 @@ from django.db import models
 from accounts.models import User
 import uuid
 from shortuuid.django_fields import ShortUUIDField
-from .fields import DurationField
 from datetime import date
 from django.utils import timezone
+from storages.backends.ftp import FTPStorage
+
+fs = FTPStorage()
 class Hotel(models.Model):
     STAR_CATEGORY_CHOICES = (
         (5, '5 Star'),
@@ -27,7 +29,7 @@ class Hotel(models.Model):
     amenities = models.ManyToManyField('HotelAmenity', related_name='hotels')
     tax_percent = models.DecimalField(max_digits=5, decimal_places=2)
     tax_type = models.CharField(max_length=20)  # Flat or Included in Rent
-    image = models.ImageField(upload_to='hotels/')
+    image = models.ImageField(upload_to='hotels/',storage=fs)
     price = models.DecimalField(max_digits=10, decimal_places=2,default=0)
     total_rooms = models.PositiveIntegerField()
     available_from = models.DateField(default=date.today())
@@ -47,7 +49,7 @@ class Room(models.Model):
     capacity = models.IntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     availability = models.BooleanField(default=True)
-    image = models.ImageField(upload_to='room_images/')
+    image = models.ImageField(upload_to='room_images/',storage=fs)
     bed_type = models.CharField(max_length=50)
     view = models.CharField(max_length=50)
     available_rooms = models.IntegerField(default=1)
@@ -73,7 +75,7 @@ class Room(models.Model):
 class HotelImage(models.Model):
     id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
     hotel = models.ForeignKey(Hotel,on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='hotel_images/')
+    image = models.ImageField(upload_to='hotel_images/',storage=fs)
 
 
 class HotelAmenity(models.Model):
@@ -117,7 +119,7 @@ class Car(models.Model):
     fuel_type = models.CharField(max_length=50, choices=[('Petrol', 'Petrol'), ('Diesel', 'Diesel'), ('Electric', 'Electric')],default="Petrol")
     ac = models.BooleanField()
     bags = models.BooleanField()
-    image = models.ImageField(upload_to='cars/')
+    image = models.ImageField(upload_to='cars/',storage=fs)
     price = models.DecimalField(max_digits=10, decimal_places=2,default=0)
     tax_percent = models.DecimalField(max_digits=5, decimal_places=2)
     tax_type = models.CharField(max_length=20)
@@ -132,7 +134,7 @@ class Car(models.Model):
 class CarImage(models.Model):
     id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
     car = models.ForeignKey(Car,on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='car_images/')
+    image = models.ImageField(upload_to='car_images/',storage=fs)
     
     def __str__(self):
         return f"{self.car.make} {self.car.model}"
@@ -140,11 +142,12 @@ class CarImage(models.Model):
 
 class AdImage(models.Model):
     id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
-    image = models.ImageField(upload_to='ads/')
+    image = models.ImageField(upload_to='ads/',storage=fs)
 
 
 # Airports
 class Airport(models.Model):
+    id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
     code = models.CharField(max_length=10,unique=True)
     name = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
@@ -155,14 +158,16 @@ class Airport(models.Model):
 
 
 class Airline(models.Model):
+    id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
     code = models.CharField(max_length=3, unique=True)
     name = models.CharField(max_length=200)
-    image = models.ImageField(upload_to='airline_image/',null=True,blank=True)
+    image = models.ImageField(upload_to='airline_image/',null=True,blank=True,storage=fs)
 
     def __str__(self):
         return self.name
 
 class Flight(models.Model):
+    id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
     flight_number = models.CharField(max_length=10, unique=True)
     airline = models.ForeignKey(Airline, on_delete=models.CASCADE)
     departure_airport = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name='departures')
@@ -170,7 +175,7 @@ class Flight(models.Model):
     name = models.CharField(max_length=255,default="")
     departure_time = models.DateField()
     arrival_time = models.DateField()
-    image = models.ImageField(upload_to="flight_images/",default="")
+    image = models.ImageField(upload_to="flight_images/",default="",storage=fs)
     duration = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     total_seats = models.PositiveIntegerField()
@@ -237,14 +242,154 @@ class BusAmenity(models.Model):
     
     def __str__(self):
         return self.name
+        
+class Yacht(models.Model):
+    id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
+    name = models.CharField(max_length=100)
+    size = models.CharField(max_length=50)
+    capacity = models.PositiveIntegerField()
+    specifications = models.TextField(null=True,blank=True)
+    layout = models.TextField(null=True,blank=True)
+    crew_members = models.PositiveSmallIntegerField(null=True,blank=True)
+    manufacturer = models.CharField(max_length=100,null=True,blank=True)
+    year_built = models.PositiveSmallIntegerField(null=True,blank=True)
+    maximum_speed = models.DecimalField(max_digits=5, decimal_places=2,null=True,blank=True)  # In knots
+    fuel_capacity = models.PositiveIntegerField(null=True,blank=True)  # In liters
+    cruising_range = models.CharField(max_length=100,null=True,blank=True)  # In nautical miles
+    cabins = models.PositiveSmallIntegerField(default=0)
+    bathrooms = models.PositiveSmallIntegerField(default=0)
+    engine_power = models.CharField(max_length=100,null=True,blank=True)
+    guest_capacity = models.PositiveSmallIntegerField(default=0)
+    exterior_features = models.TextField(null=True,blank=True)
+    interior_features = models.TextField(null=True,blank=True)
+    image = models.ImageField(upload_to='yacht_images/',storage=fs)
+    registration_country = models.CharField(max_length=100,null=True,blank=True)
+    hull_material = models.CharField(max_length=100,null=True,blank=True)
+    length_overall = models.DecimalField(max_digits=5, decimal_places=2,null=True,blank=True)  # In meters
+    draft = models.DecimalField(max_digits=5, decimal_places=2,null=True,blank=True)  # In meters
+    beam = models.DecimalField(max_digits=5, decimal_places=2,null=True,blank=True)  # In meters
+    owner = models.CharField(max_length=100,null=True,blank=True)
+    charter_price = models.DecimalField(max_digits=10, decimal_places=2)  # Daily charter price
+    description = models.TextField(null=True,blank=True)
+    amenities = models.TextField(null=True,blank=True)
+    special_features = models.TextField(null=True,blank=True)
+
+    def __str__(self):
+        return self.name
+        
+class YachtImage(models.Model):
+    id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
+    yacht = models.ForeignKey(Yacht,on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='yacht_images/',storage=fs)
+    
+    def __str__(self):
+        return f"{self.yacht.name}"
+    
+class Activities(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+    image = models.ImageField(upload_to='activity_images/', storage=fs, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name
+
+class ThemePark(Activities):
+    location = models.CharField(max_length=100)
+    opening_date = models.DateField()
+    website = models.URLField(blank=True)
+    contact_email = models.EmailField(blank=True)
+    contact_phone = models.CharField(max_length=20, blank=True)
+    capacity = models.PositiveIntegerField()
+    parking_available = models.BooleanField(default=True)
+    facilities = models.TextField(blank=True)
+
+class TopAttraction(Activities):
+    theme_park = models.ForeignKey(ThemePark, on_delete=models.CASCADE)
+    thrill_level = models.PositiveIntegerField()
+    age_limit = models.PositiveIntegerField()
+    opening_hours = models.CharField(max_length=100)
+    is_fast_pass_available = models.BooleanField(default=False)
+
+class DesertSafari(Activities):
+    location = models.CharField(max_length=100)
+    duration_hours = models.PositiveIntegerField()
+    schedule = models.TextField(blank=True)
+    inclusions = models.TextField(blank=True)
+    max_participants = models.PositiveIntegerField()
+    equipment_provided = models.TextField(blank=True)
+    safety_guidelines = models.TextField(blank=True)
+
+class WaterPark(Activities):
+    location = models.CharField(max_length=100)
+    opening_date = models.DateField()
+    website = models.URLField(blank=True)
+    contact_email = models.EmailField(blank=True)
+    contact_phone = models.CharField(max_length=20, blank=True)
+    capacity = models.PositiveIntegerField()
+    parking_available = models.BooleanField(default=True)
+    facilities = models.TextField(blank=True)
+
+class WaterActivity(Activities):
+    water_park = models.ForeignKey(WaterPark, on_delete=models.CASCADE)
+    age_limit = models.PositiveIntegerField()
+    duration_minutes = models.PositiveIntegerField()
+    equipment_required = models.TextField(blank=True)
+    skill_level = models.CharField(max_length=50)
+
+class AdventureTour(Activities):
+    location = models.CharField(max_length=100)
+    duration_days = models.PositiveIntegerField()
+    itinerary = models.TextField(blank=True)
+    max_participants = models.PositiveIntegerField()
+    gear_provided = models.TextField(blank=True)
+    difficulty_level = models.CharField(max_length=50)
+
+class ComboTour(Activities):
+    theme_park = models.ForeignKey(ThemePark, on_delete=models.CASCADE)
+    desert_safari = models.ForeignKey(DesertSafari, on_delete=models.CASCADE)
+    water_park = models.ForeignKey(WaterPark, on_delete=models.CASCADE)
+    adventure_tour = models.ForeignKey(AdventureTour, on_delete=models.CASCADE)
+    duration_days = models.PositiveIntegerField()
+    inclusion_details = models.TextField()
+    reservation_instructions = models.TextField()
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+
+class DubaiActivity(Activities):
+    location = models.CharField(max_length=100)
+    duration_hours = models.PositiveIntegerField()
+    age_limit = models.PositiveIntegerField()
+    includes_meals = models.BooleanField(default=False)
+    schedule = models.TextField(blank=True)
+    special_requirements = models.TextField(blank=True)
+    max_participants = models.PositiveIntegerField()
+    equipment_provided = models.TextField(blank=True)
+    additional_info = models.TextField(blank=True)
+        
+CATEGORIES = (
+('top attraction','Top Attraction'),
+('desert safari','Desert Safari'),
+('water park','Water Park'),
+('theme park','Theme Park'),
+('water activity','Water Activity'),
+('adventure tour','Adventure Tour'),
+('combo tour','Combo Tour')
+)        
+
 
 class Package(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     name = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='package_image/',blank=True)
+    image = models.ImageField(upload_to='package_image/',blank=True,storage=fs)
     origin_city = models.CharField(max_length=100)
     destination_city = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    category = models.CharField(max_length=50,choices=CATEGORIES,default="")
     flights = models.ManyToManyField('Flight',related_name='package_flights',blank=True)
     cars = models.ManyToManyField('Car',related_name='package_cars',blank=True)
     buses = models.ManyToManyField('Bus',related_name='package_buses',blank=True)
@@ -265,7 +410,7 @@ class Offer(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     title = models.CharField(max_length=100, default="")
     code = models.CharField(max_length=20, unique=True)
-    image = models.ImageField(upload_to="offer_images/")
+    image = models.ImageField(upload_to="offer_images/",storage=fs)
     flights = models.ManyToManyField('Flight',related_name='offer_flights',blank=True)
     cars = models.ManyToManyField('Car',related_name='offer_cars',blank=True)
     buses = models.ManyToManyField('Bus',related_name='offer_buses',blank=True)
@@ -301,8 +446,8 @@ class HotelReservation(Reservation):
     hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     total_guests = models.IntegerField(default=0)
-    check_in_date = models.DateField()
-    check_out_date = models.DateField()
+    check_in_date = models.DateField(blank=True)
+    check_out_date = models.DateField(blank=True)
 
     passenger = None
 
@@ -316,6 +461,14 @@ class CarReservation(Reservation):
 
     def __str__(self):
         return f"{self.user.email} - {self.car.name} - {self.passenger}"
+        
+class YachtReservation(Reservation):
+    yacht = models.ForeignKey(Yacht, on_delete=models.CASCADE)
+    check_in_date = models.DateField()
+    check_out_date = models.DateField()
+
+    def __str__(self):
+        return f"{self.user.email} - {self.yacht.name} - {self.passenger}"
 
 class FlightReservation(Reservation):
     flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
@@ -336,6 +489,71 @@ class PackageReservation(Reservation):
 
     def __str__(self):
         return f"{self.user.email} - {self.package.name} - {self.passenger}"
+    
+class ThemeParkReservation(Reservation):
+    theme_park = models.ForeignKey(ThemePark, on_delete=models.CASCADE)
+    admission_count = models.PositiveIntegerField()
+    passenger=None
+
+    def __str__(self):
+        return f"{self.user.email} - {self.theme_park.name} - {self.admission_count} tickets"
+
+class TopAttractionReservation(Reservation):
+    top_attraction = models.ForeignKey(TopAttraction, on_delete=models.CASCADE)
+    ticket_count = models.PositiveIntegerField()
+    passenger=None
+
+    def __str__(self):
+        return f"{self.user.email} - {self.top_attraction.name} - {self.ticket_count} tickets"
+
+class DesertSafariReservation(Reservation):
+    desert_safari = models.ForeignKey(DesertSafari, on_delete=models.CASCADE)
+    participant_count = models.PositiveIntegerField()
+    passenger=None
+
+    def __str__(self):
+        return f"{self.user.email} - Desert Safari at {self.desert_safari.location} - {self.participant_count} participants"
+
+class WaterParkReservation(Reservation):
+    water_park = models.ForeignKey(WaterPark, on_delete=models.CASCADE)
+    admission_count = models.PositiveIntegerField()
+    passenger=None
+
+    def __str__(self):
+        return f"{self.user.email} - {self.water_park.name} - {self.admission_count} tickets"
+
+class WaterActivityReservation(Reservation):
+    water_activity = models.ForeignKey(WaterActivity, on_delete=models.CASCADE)
+    participant_count = models.PositiveIntegerField()
+    passenger=None
+
+    def __str__(self):
+        return f"{self.user.email} - {self.water_activity.name} - {self.participant_count} participants"
+
+class AdventureTourReservation(Reservation):
+    adventure_tour = models.ForeignKey(AdventureTour, on_delete=models.CASCADE)
+    participant_count = models.PositiveIntegerField()
+    passenger=None
+
+    def __str__(self):
+        return f"{self.user.email} - {self.adventure_tour.name} - {self.participant_count} participants"
+
+class ComboTourReservation(Reservation):
+    combo_tour = models.ForeignKey(ComboTour, on_delete=models.CASCADE)
+    participant_count = models.PositiveIntegerField()
+    passenger=None
+
+    def __str__(self):
+        return f"{self.user.email} - {self.combo_tour.name} - {self.participant_count} participants"
+
+class DubaiActivityReservation(Reservation):
+    dubai_activity = models.ForeignKey(DubaiActivity, on_delete=models.CASCADE)
+    participant_count = models.PositiveIntegerField()
+    passenger=None
+
+    def __str__(self):
+        return f"{self.user.email} - {self.dubai_activity.name} - {self.participant_count} participants"
+
 
 
 
@@ -358,6 +576,15 @@ class Booking(models.Model):
     flight = models.ForeignKey(FlightReservation,on_delete=models.CASCADE,blank=True,null=True)
     bus = models.ForeignKey(BusReservation,on_delete=models.CASCADE,blank=True,null=True)
     package = models.ForeignKey(PackageReservation,on_delete=models.CASCADE,blank=True,null=True)
+    yacht = models.ForeignKey(YachtReservation,on_delete=models.CASCADE,blank=True,null=True)
+    theme_park = models.ForeignKey(ThemeParkReservation,on_delete=models.CASCADE,blank=True,null=True)
+    top_attraction = models.ForeignKey(TopAttractionReservation,on_delete=models.CASCADE,blank=True,null=True)
+    desert_safari = models.ForeignKey(DesertSafariReservation,on_delete=models.CASCADE,blank=True,null=True)
+    water_park = models.ForeignKey(WaterParkReservation,on_delete=models.CASCADE,blank=True,null=True)
+    water_activity = models.ForeignKey(WaterActivityReservation,on_delete=models.CASCADE,blank=True,null=True)
+    adventure_tour = models.ForeignKey(AdventureTourReservation,on_delete=models.CASCADE,blank=True,null=True)
+    combo_tour = models.ForeignKey(ComboTourReservation,on_delete=models.CASCADE,blank=True,null=True)
+    dubai_activity = models.ForeignKey(DubaiActivityReservation,on_delete=models.CASCADE,blank=True,null=True)
     status = models.CharField(max_length=20,choices=STATUS_CHOICES,default='pending')
     order_id = models.CharField(max_length=100,null=True,blank=True)
     payment_id = models.CharField(max_length=100,null=True,blank=True)
@@ -369,7 +596,7 @@ class Booking(models.Model):
     check_out_date = models.DateField(blank=True,null=True)
 
     def __str__(self):
-        return self.user.email
+        return f"{self.user.email}"
         
 class Contact(models.Model):
     name = models.CharField(max_length=100)
@@ -400,18 +627,41 @@ class Visa(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     name = models.CharField(max_length=100,default="")
     email = models.EmailField(max_length=100,default="")
+    country = models.CharField(max_length=100)
     visa_type = models.CharField(max_length=100)
-    traveller = models.IntegerField(max_length=100,default=1)
+    traveller = models.IntegerField(default=1)
 
     def __str__(self):
         return f'{self.email} - {self.visa_type} - {self.traveller}'
         
-class DubaiActivity(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.TextField()
-    image = models.ImageField(upload_to='activity_images/')
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+class RefundRequest(models.Model):
+    REFUND_STATUS = (
+        ('pending','Pending'),
+        ('cancelled','Cancelled'),
+        ('refunded','Refunded')
+    )
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    hotel = models.ForeignKey(HotelReservation,on_delete=models.CASCADE,blank=True,null=True)
+    car = models.ForeignKey(CarReservation,on_delete=models.CASCADE,blank=True,null=True)
+    flight = models.ForeignKey(FlightReservation,on_delete=models.CASCADE,blank=True,null=True)
+    bus = models.ForeignKey(BusReservation,on_delete=models.CASCADE,blank=True,null=True)
+    package = models.ForeignKey(PackageReservation,on_delete=models.CASCADE,blank=True,null=True)
+    yacht = models.ForeignKey(YachtReservation,on_delete=models.CASCADE,blank=True,null=True)
+    theme_park = models.ForeignKey(ThemeParkReservation,on_delete=models.CASCADE,blank=True,null=True)
+    top_attraction = models.ForeignKey(TopAttractionReservation,on_delete=models.CASCADE,blank=True,null=True)
+    desert_safari = models.ForeignKey(DesertSafariReservation,on_delete=models.CASCADE,blank=True,null=True)
+    water_park = models.ForeignKey(WaterParkReservation,on_delete=models.CASCADE,blank=True,null=True)
+    water_activity = models.ForeignKey(WaterActivityReservation,on_delete=models.CASCADE,blank=True,null=True)
+    adventure_tour = models.ForeignKey(AdventureTourReservation,on_delete=models.CASCADE,blank=True,null=True)
+    combo_tour = models.ForeignKey(ComboTourReservation,on_delete=models.CASCADE,blank=True,null=True)
+    dubai_activity = models.ForeignKey(DubaiActivityReservation,on_delete=models.CASCADE,blank=True,null=True)
+    order_id = models.CharField(max_length=100,null=True,blank=True)
+    refund_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=100,default='pending',choices=REFUND_STATUS)
+    request_date = models.DateTimeField(auto_now_add=True)
+    refund_date = models.DateField(null=True,blank=True)
 
     def __str__(self):
-        return self.name
-    
+        return f'refund request of {self.user.email}'

@@ -98,6 +98,10 @@ class ContactAdmin(admin.ModelAdmin):
 @admin.register(Forex)
 class ForexAdmin(admin.ModelAdmin):
     list_display = ('location', 'currency', 'quantity', 'purpose_of_visit', 'booking_currency_for', 'amount')
+    
+@admin.register(Visa)
+class VisaAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email','country', 'visa_type', 'traveller')
 
 
 @admin.register(HotelReservation)
@@ -130,9 +134,136 @@ class PackageReservationAdmin(admin.ModelAdmin):
     list_filter = ['status', 'reservation_date']
     search_fields = ['user__email', 'package__name']
     
+    
+class YachtImageAdmin(admin.StackedInline):
+    model = YachtImage
+
+@admin.register(Yacht)
+class YachtAdmin(admin.ModelAdmin):
+    list_display = (
+        'name', 'size', 'capacity','charter_price'
+    )
+    search_fields = ('name', 'manufacturer', 'registration_country')
+    inlines = [YachtImageAdmin]
+
+@admin.register(YachtReservation)
+class YachtReservationAdmin(admin.ModelAdmin):
+    list_display = (
+        'user', 'yacht', 'check_in_date', 'check_out_date', 'status', 'reservation_date'
+    )
+    list_filter = ('status', 'reservation_date')
+    search_fields = ('user__email', 'yacht__name')
+
+
+
+@admin.register(ThemePark)
+class ThemeParkAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'opening_date', 'price')
+    search_fields = ('name', 'location')
+
+@admin.register(TopAttraction)
+class TopAttractionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'theme_park', 'thrill_level', 'price')
+    list_filter = ('theme_park', 'thrill_level')
+    search_fields = ('name', 'theme_park__name')
+
+@admin.register(DesertSafari)
+class DesertSafariAdmin(admin.ModelAdmin):
+    list_display = ('location', 'duration_hours', 'price')
+    search_fields = ('location',)
+
+@admin.register(WaterPark)
+class WaterParkAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'opening_date', 'price')
+    search_fields = ('name', 'location')
+
+@admin.register(WaterActivity)
+class WaterActivityAdmin(admin.ModelAdmin):
+    list_display = ('name', 'water_park', 'age_limit', 'price')
+    list_filter = ('water_park',)
+    search_fields = ('name', 'water_park__name')
+
+@admin.register(AdventureTour)
+class AdventureTourAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'duration_days', 'price')
+    search_fields = ('name', 'location')
+
+@admin.register(ComboTour)
+class ComboTourAdmin(admin.ModelAdmin):
+    list_display = ('name', 'theme_park', 'price')
+    search_fields = ('name', 'theme_park__name')
 
 @admin.register(DubaiActivity)
 class DubaiActivityAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price')
-    search_fields = ('name',)
-    list_filter = ('price',)
+    list_display = ('name', 'location', 'duration_hours', 'age_limit', 'includes_meals')
+    search_fields = ('name', 'location')
+
+@admin.register(ThemeParkReservation)
+class ThemeParkReservationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'theme_park', 'admission_count', 'status', 'reservation_date')
+    list_filter = ('theme_park', 'status', 'reservation_date')
+    search_fields = ('user__email', 'theme_park__name')
+
+@admin.register(TopAttractionReservation)
+class TopAttractionReservationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'top_attraction', 'ticket_count', 'status', 'reservation_date')
+    list_filter = ('top_attraction__theme_park', 'status', 'reservation_date')
+    search_fields = ('user__email', 'top_attraction__name')
+
+@admin.register(DesertSafariReservation)
+class DesertSafariReservationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'desert_safari', 'participant_count', 'status', 'reservation_date')
+    list_filter = ('desert_safari', 'status', 'reservation_date')
+    search_fields = ('user__email', 'desert_safari__location')
+
+@admin.register(WaterParkReservation)
+class WaterParkReservationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'water_park', 'admission_count', 'status', 'reservation_date')
+    list_filter = ('water_park', 'status', 'reservation_date')
+    search_fields = ('user__email', 'water_park__name')
+
+@admin.register(WaterActivityReservation)
+class WaterActivityReservationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'water_activity', 'participant_count', 'status', 'reservation_date')
+    list_filter = ('water_activity__water_park', 'status', 'reservation_date')
+    search_fields = ('user__email', 'water_activity__name')
+
+@admin.register(AdventureTourReservation)
+class AdventureTourReservationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'adventure_tour', 'participant_count', 'status', 'reservation_date')
+    list_filter = ('adventure_tour', 'status', 'reservation_date')
+    search_fields = ('user__email', 'adventure_tour__name')
+
+@admin.register(ComboTourReservation)
+class ComboTourReservationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'combo_tour', 'participant_count', 'status', 'reservation_date')
+    list_filter = ('combo_tour__theme_park', 'status', 'reservation_date')
+    search_fields = ('user__email', 'combo_tour__name')
+
+@admin.register(DubaiActivityReservation)
+class DubaiActivityReservationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'dubai_activity', 'participant_count', 'status', 'reservation_date')
+    list_filter = ('dubai_activity__location', 'status', 'reservation_date')
+    search_fields = ('user__email', 'dubai_activity__name')
+
+
+@admin.register(RefundRequest)
+class RefundRequestAdmin(admin.ModelAdmin):
+    list_display = ('user', 'status', 'request_date', 'refund_date')
+    list_filter = ('status', 'request_date', 'refund_date')
+    search_fields = ('user__email', 'order_id')
+    readonly_fields = ('id', 'request_date')
+
+    fieldsets = (
+        ('General Information', {
+            'fields': ('id', 'user', 'status', 'request_date', 'refund_date')
+        }),
+        ('Reservation Details', {
+            'fields': ('hotel', 'car', 'flight', 'bus', 'package', 'yacht', 'theme_park',
+                       'top_attraction', 'desert_safari', 'water_park', 'water_activity',
+                       'adventure_tour', 'combo_tour', 'dubai_activity')
+        }),
+        ('Refund Information', {
+            'fields': ('order_id', 'refund_amount')
+        }),
+    )
