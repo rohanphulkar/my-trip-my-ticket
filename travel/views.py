@@ -1010,7 +1010,7 @@ class CustomerReviewView(APIView):
                 return Response({'error': 'Invalid model'}, status=status.HTTP_400_BAD_REQUEST)
 
             obj = get_object_or_404(MODEL_MAPPING[model], id=object_id)
-            data = {**request.data, 'user': request.user.id}
+            data = {**request.data, 'user': request.user}
             data[model] = object_id
 
             serializer = serializer_class(data=data)
