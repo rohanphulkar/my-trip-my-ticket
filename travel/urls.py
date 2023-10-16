@@ -37,5 +37,6 @@ urlpatterns = [
     path("duplicate/", views.duplicate_instance, name="duplicate_instance"),
     path('get_model_instances/', views.get_model_instances, name='get_model_instances'),
     path('forex/create/', views.ForexCreateView.as_view(), name='forex-create'),
-    path("visa/", views.VisaCreateView.as_view(), name="visa")
+    path("visa/", views.VisaCreateView.as_view(), name="visa"),
+    path("review/create/<model>/<object_id>/", views.CustomerReviewView.as_view(), name="customer_review")
 ]

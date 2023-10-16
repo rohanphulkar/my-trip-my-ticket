@@ -267,3 +267,83 @@ class RefundRequestAdmin(admin.ModelAdmin):
             'fields': ('order_id', 'refund_amount')
         }),
     )
+
+# Customer review models
+
+@admin.register(HotelCustomerReview)
+class HotelCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('hotel', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('hotel__name', 'user')
+
+@admin.register(CarCustomerReview)
+class CarCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('car', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('car__name', 'user')
+
+@admin.register(FlightCustomerReview)
+class FlightCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('flight', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('flight__flight_number', 'user')
+
+@admin.register(PackageCustomerReview)
+class PackageCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('package', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('package__name', 'user')
+
+@admin.register(YachtCustomerReview)
+class YachtCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('yacht', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('yacht__name', 'user')
+
+@admin.register(ThemeParkCustomerReview)
+class ThemeParkCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('themepark', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('themepark__name', 'user')
+
+@admin.register(TopAttractionCustomerReview)
+class TopAttractionCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('topattraction', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('topattraction__name', 'user')
+
+@admin.register(DesertSafariCustomerReview)
+class DesertSafariCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('desertsafari', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('desertsafari__name', 'user')
+
+@admin.register(WaterParkCustomerReview)
+class WaterParkCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('waterpark', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('waterpark__name', 'user')
+
+@admin.register(WaterActivityCustomerReview)
+class WaterActivityCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('wateractivity', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('wateractivity__name', 'user')
+
+@admin.register(AdventureTourCustomerReview)
+class AdventureTourCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('adventuretour', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('adventuretour__name', 'user')
+
+@admin.register(ComboTourCustomerReview)
+class ComboTourCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('combotour', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('combotour__name', 'user')
+
+@admin.register(DubaiActivityCustomerReview)
+class DubaiActivityCustomerReviewAdmin(admin.ModelAdmin):
+    list_display = ('dubaiactivity', 'user', 'rating', 'review_date')
+    list_filter = ('rating', 'review_date')
+    search_fields = ('dubaiactivity__name', 'user')

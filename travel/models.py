@@ -406,6 +406,8 @@ class Package(models.Model):
 
 
 
+
+
 class Offer(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     title = models.CharField(max_length=100, default="")
@@ -665,3 +667,149 @@ class RefundRequest(models.Model):
 
     def __str__(self):
         return f'refund request of {self.user.email}'
+    
+
+# Cutomer Review Models
+class HotelCustomerReview(models.Model):
+    hotel = models.ForeignKey('Hotel', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for {self.hotel.name} by {self.user.email or self.user.phone}"
+
+class CarCustomerReview(models.Model):
+    car = models.ForeignKey('Car', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for {self.car.name} by {self.user.email or self.user.phone}"
+
+class FlightCustomerReview(models.Model):
+    flight = models.ForeignKey('Flight', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for {self.flight.flight_number} by {self.user.email or self.user.phone}"
+    
+class PackageCustomerReview(models.Model):
+    package = models.ForeignKey('Package', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for Package '{self.package.name}' by {self.user.email or self.user.phone}"
+
+class YachtCustomerReview(models.Model):
+    yacht = models.ForeignKey('Yacht', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for {self.yacht.name} by {self.user.email or self.user.phone}"
+
+class ThemeParkCustomerReview(models.Model):
+    themepark = models.ForeignKey('ThemePark', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for Theme Park '{self.themepark.name}' by {self.user.email or self.user.phone}"
+
+class TopAttractionCustomerReview(models.Model):
+    topattraction = models.ForeignKey('TopAttraction', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for Top Attraction '{self.topattraction.name}' by {self.user.email or self.user.phone}"
+
+class DesertSafariCustomerReview(models.Model):
+    desertsafari = models.ForeignKey('DesertSafari', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for Desert Safari '{self.desertsafari.name}' by {self.user.email or self.user.phone}"
+
+class WaterParkCustomerReview(models.Model):
+    waterpark = models.ForeignKey('WaterPark', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for Water Park '{self.waterpark.name}' by {self.user.email or self.user.phone}"
+
+class WaterActivityCustomerReview(models.Model):
+    wateractivity = models.ForeignKey('WaterActivity', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for Water Activity '{self.wateractivity.name}' by {self.user.email or self.user.phone}"
+
+class AdventureTourCustomerReview(models.Model):
+    adventuretour = models.ForeignKey('AdventureTour', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for Adventure Tour '{self.adventuretour.name}' by {self.user.email or self.user.phone}"
+
+class ComboTourCustomerReview(models.Model):
+    combotour = models.ForeignKey('ComboTour', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for Combo Tour '{self.combotour.name}' by {self.user.email or self.user.phone}"
+    
+class DubaiActivityCustomerReview(models.Model):
+    dubaiactivity = models.ForeignKey('DubaiActivity', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
+    review_title = models.CharField(max_length=200)
+    review_text = models.TextField()
+    rating = models.PositiveSmallIntegerField()
+    review_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for Dubai Activity '{self.dubaiactivity.name}' by {self.user.email or self.user.phone}"
+
