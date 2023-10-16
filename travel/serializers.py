@@ -6,102 +6,174 @@ from django.db.models import Sum
 
 # Customer Review Serializer
 class HotelCustomerReviewSerializer(serializers.ModelSerializer):
-    user = serializers.SerializerMethodField()
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = HotelCustomerReview
         fields = '__all__'
 
-    def get_user(self, obj):
+    def get_user_data(self, obj):
         user_data = UserSerializer(obj.user).data
         return {
             'email': user_data.get('email'),
             'phone': user_data.get('phone')
         }
 
-
 class CarCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = CarCustomerReview
         fields = '__all__'
     
-    
+    def get_user_data(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
 
 class FlightCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = FlightCustomerReview
         fields = '__all__'
-        
+    
+    def get_user_data(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
+
 class PackageCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = PackageCustomerReview
         fields = '__all__'
     
+    def get_user_data(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
 
 class ThemeParkCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = ThemeParkCustomerReview
         fields = '__all__'
     
+    def get_user_data(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
 
 class TopAttractionCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = TopAttractionCustomerReview
         fields = '__all__'
-
+    
+    def get_user_data(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
 
 class DesertSafariCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = DesertSafariCustomerReview
         fields = '__all__'
-
+    
+    def get_user_data(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
 
 class WaterParkCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = WaterParkCustomerReview
         fields = '__all__'
-
+    
+    def get_user_data(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
 
 class WaterActivityCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = WaterActivityCustomerReview
         fields = '__all__'
     
+    def get_user_data(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
 
 class AdventureTourCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = AdventureTourCustomerReview
         fields = '__all__'
-
+    
+    def get_user_data(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
 
 class ComboTourCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = ComboTourCustomerReview
         fields = '__all__'
     
+    def get_user_data(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
 
 class DubaiActivityCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = DubaiActivityCustomerReview
         fields = '__all__'
-
+    
+    def get_user_data(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
 
 class YachtCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    users_data = serializers.SerializerMethodField('get_user_data')
     class Meta:
         model = YachtCustomerReview
         fields = '__all__'
     
+    def get_user_data(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
+
 
 # Hotel Serializers
 class HotelAmenitySerializer(serializers.ModelSerializer):
