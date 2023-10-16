@@ -902,125 +902,129 @@ def duplicate_instance(request):
     return render(request,'travel/duplicate_instance.html',{'model_list':dict(models_list.items())})
     
 
-# class CustomerReviewView(APIView):
-#     permission_classes = [IsAuthenticated]
-#     def post(self,request,model,object_id):
-#         data = {**request.data,'user':request.user.id}
-#         if model == 'hotel':
-#             obj = get_object_or_404(Hotel, id=object_id)
-#             data = {**data,'hotel':object_id}
-#             serializer = HotelCustomerReviewSerializer(data=data)
-#         elif model == 'car':
-#             obj = get_object_or_404(Car, id=object_id)
-#             data = {**data,'car':object_id}
-#             serializer = CarCustomerReviewSerializer(data=data)
-#         elif model == 'flight':
-#             obj = get_object_or_404(Flight, id=object_id)
-#             data = {**data,'flight':object_id}
-#             serializer = FlightCustomerReviewSerializer(data=data)
-#         elif model == 'package':
-#             obj = get_object_or_404(Package, id=object_id)
-#             data = {**data,'package':object_id}
-#             serializer = PackageCustomerReviewSerializer(data=data)
-#         elif model == 'themepark':
-#             obj = get_object_or_404(ThemePark, id=object_id)
-#             data = {**data,'themepark':object_id}
-#             serializer = ThemeParkCustomerReviewSerializer(data=data)
-#         elif model == 'topattraction':
-#             obj = get_object_or_404(TopAttraction, id=object_id)
-#             data = {**data,'topattraction':object_id}
-#             serializer = TopAttractionCustomerReviewSerializer(data=data)
-#         elif model == 'desertsafari':
-#             obj = get_object_or_404(DesertSafari, id=object_id)
-#             data = {**data,'desertsafari':object_id}
-#             serializer = DesertSafariCustomerReviewSerializer(data=data)
-#         elif model == 'waterpark':
-#             obj = get_object_or_404(WaterPark, id=object_id)
-#             data = {**data,'waterpark':object_id}
-#             serializer = WaterParkCustomerReviewSerializer(data=data)
-#         elif model == 'wateractivity':
-#             obj = get_object_or_404(WaterActivity, id=object_id)
-#             data = {**data,'wateractivity':object_id}
-#             serializer = WaterActivityCustomerReviewSerializer(data=data)
-#         elif model == 'adventuretour':
-#             obj = get_object_or_404(AdventureTour, id=object_id)
-#             data = {**data,'adventuretour':object_id}
-#             serializer = AdventureTourCustomerReviewSerializer(data=data)
-#         elif model == 'combotour':
-#             obj = get_object_or_404(ComboTour, id=object_id)
-#             data = {**data,'combotour':object_id}
-#             serializer = ComboTourCustomerReviewSerializer(data=data)
-#         elif model == 'dubaiactivity':
-#             obj = get_object_or_404(DubaiActivity, id=object_id)
-#             data = {**data,'dubaiactivity':object_id}
-#             serializer = DubaiActivityCustomerReviewSerializer(data=data)
-#         elif model == 'yacht':
-#             obj = get_object_or_404(Yacht, id=object_id)
-#             data = {**data,'yacht':object_id}
-#             serializer = YachtCustomerReviewSerializer(data=data)
-
-#         if serializer.is_valid():
-#             review = serializer.save()
-#             review.yacht = obj
-#             review.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class CustomerReviewView(APIView):
     permission_classes = [IsAuthenticated]
+    def post(self,request,model,object_id):
+        data = {**request.data,'user':request.user.id}
+        if model == 'hotel':
+            obj = get_object_or_404(Hotel, id=object_id)
+            data = {**data,'hotel':object_id}
+            serializer = HotelCustomerReviewSerializer(data=data)
+        elif model == 'car':
+            obj = get_object_or_404(Car, id=object_id)
+            data = {**data,'car':object_id}
+            serializer = CarCustomerReviewSerializer(data=data)
+        elif model == 'flight':
+            obj = get_object_or_404(Flight, id=object_id)
+            data = {**data,'flight':object_id}
+            serializer = FlightCustomerReviewSerializer(data=data)
+        elif model == 'package':
+            obj = get_object_or_404(Package, id=object_id)
+            data = {**data,'package':object_id}
+            serializer = PackageCustomerReviewSerializer(data=data)
+        elif model == 'themepark':
+            obj = get_object_or_404(ThemePark, id=object_id)
+            data = {**data,'themepark':object_id}
+            serializer = ThemeParkCustomerReviewSerializer(data=data)
+        elif model == 'topattraction':
+            obj = get_object_or_404(TopAttraction, id=object_id)
+            data = {**data,'topattraction':object_id}
+            serializer = TopAttractionCustomerReviewSerializer(data=data)
+        elif model == 'desertsafari':
+            obj = get_object_or_404(DesertSafari, id=object_id)
+            data = {**data,'desertsafari':object_id}
+            serializer = DesertSafariCustomerReviewSerializer(data=data)
+        elif model == 'waterpark':
+            obj = get_object_or_404(WaterPark, id=object_id)
+            data = {**data,'waterpark':object_id}
+            serializer = WaterParkCustomerReviewSerializer(data=data)
+        elif model == 'wateractivity':
+            obj = get_object_or_404(WaterActivity, id=object_id)
+            data = {**data,'wateractivity':object_id}
+            serializer = WaterActivityCustomerReviewSerializer(data=data)
+        elif model == 'adventuretour':
+            obj = get_object_or_404(AdventureTour, id=object_id)
+            data = {**data,'adventuretour':object_id}
+            serializer = AdventureTourCustomerReviewSerializer(data=data)
+        elif model == 'combotour':
+            obj = get_object_or_404(ComboTour, id=object_id)
+            data = {**data,'combotour':object_id}
+            serializer = ComboTourCustomerReviewSerializer(data=data)
+        elif model == 'dubaiactivity':
+            obj = get_object_or_404(DubaiActivity, id=object_id)
+            data = {**data,'dubaiactivity':object_id}
+            serializer = DubaiActivityCustomerReviewSerializer(data=data)
+        elif model == 'yacht':
+            obj = get_object_or_404(Yacht, id=object_id)
+            data = {**data,'yacht':object_id}
+            serializer = YachtCustomerReviewSerializer(data=data)
+
+        if serializer.is_valid():
+            review = serializer.save()
+            review.yacht = obj
+            review.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class CustomerReviewView(APIView):
+#     permission_classes = [IsAuthenticated]
 
     
 
-    MODEL_SERIALIZER_MAPPING = {
-        'hotel': HotelCustomerReviewSerializer,
-        'car': CarCustomerReviewSerializer,
-        'flight': FlightCustomerReviewSerializer,
-        'package': PackageCustomerReviewSerializer,
-        'themepark': ThemeParkCustomerReviewSerializer,
-        'topattraction': TopAttractionCustomerReviewSerializer,
-        'desertsafari': DesertSafariCustomerReviewSerializer,
-        'waterpark': WaterParkCustomerReviewSerializer,
-        'wateractivity': WaterActivityCustomerReviewSerializer,
-        'adventuretour': AdventureTourCustomerReviewSerializer,
-        'combotour': ComboTourCustomerReviewSerializer,
-        'dubaiactivity': DubaiActivityCustomerReviewSerializer,
-        'yacht': YachtCustomerReviewSerializer,
-    }
+#     MODEL_SERIALIZER_MAPPING = {
+#         'hotel': HotelCustomerReviewSerializer,
+#         'car': CarCustomerReviewSerializer,
+#         'flight': FlightCustomerReviewSerializer,
+#         'package': PackageCustomerReviewSerializer,
+#         'themepark': ThemeParkCustomerReviewSerializer,
+#         'topattraction': TopAttractionCustomerReviewSerializer,
+#         'desertsafari': DesertSafariCustomerReviewSerializer,
+#         'waterpark': WaterParkCustomerReviewSerializer,
+#         'wateractivity': WaterActivityCustomerReviewSerializer,
+#         'adventuretour': AdventureTourCustomerReviewSerializer,
+#         'combotour': ComboTourCustomerReviewSerializer,
+#         'dubaiactivity': DubaiActivityCustomerReviewSerializer,
+#         'yacht': YachtCustomerReviewSerializer,
+#     }
 
-    def post(self, request, model, object_id):
-        MODEL_MAPPING = {
-        'hotel': Hotel,
-        'car': Car,
-        'flight': Flight,
-        'package': Package,
-        'themepark': ThemePark,
-        'topattraction': TopAttraction,
-        'desertsafari': DesertSafari,
-        'waterpark': WaterPark,
-        'wateractivity': WaterActivity,
-        'adventuretour': AdventureTour,
-        'combotour': ComboTour,
-        'dubaiactivity': DubaiActivity,
-        'yacht': Yacht,
-        }
-        try:
-            serializer_class = self.MODEL_SERIALIZER_MAPPING.get(model)
-            if not serializer_class:
-                return Response({'error': 'Invalid model'}, status=status.HTTP_400_BAD_REQUEST)
+#     def post(self, request, model, object_id):
+#         MODEL_MAPPING = {
+#         'hotel': Hotel,
+#         'car': Car,
+#         'flight': Flight,
+#         'package': Package,
+#         'themepark': ThemePark,
+#         'topattraction': TopAttraction,
+#         'desertsafari': DesertSafari,
+#         'waterpark': WaterPark,
+#         'wateractivity': WaterActivity,
+#         'adventuretour': AdventureTour,
+#         'combotour': ComboTour,
+#         'dubaiactivity': DubaiActivity,
+#         'yacht': Yacht,
+#         }
+#         try:
+#             serializer_class = self.MODEL_SERIALIZER_MAPPING.get(model)
+#             if not serializer_class:
+#                 return Response({'error': 'Invalid model'}, status=status.HTTP_400_BAD_REQUEST)
 
-            obj = get_object_or_404(MODEL_MAPPING[model], id=object_id)
-            data = {**request.data, 'user': request.user}
-            data[model] = object_id
+#             obj = get_object_or_404(MODEL_MAPPING[model], id=object_id)
+#             try:
+#                 user = User.objects.get(id=request.user.id)
+#             except Exception as e:
+#                 return Response({'error':'user not found'},status=status.HTTP_404_NOT_FOUND)
+#             data = {**request.data, 'user': request.user}
+#             data[model] = object_id
 
-            serializer = serializer_class(data=data)
+#             serializer = serializer_class(data=data)
 
-            if serializer.is_valid():
-                review = serializer.save()
-                setattr(review, model, obj)  # Dynamically set the model-specific field
-                review.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#             if serializer.is_valid():
+#                 review = serializer.save()
+#                 setattr(review, model, obj)  # Dynamically set the model-specific field
+#                 review.save()
+#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        except Exception as e:
-            return Response({'error':str(e)},status=status.HTTP_400_BAD_REQUEST)
+#         except Exception as e:
+#             return Response({'error':str(e)},status=status.HTTP_400_BAD_REQUEST)

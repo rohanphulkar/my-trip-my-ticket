@@ -41,28 +41,28 @@ class ThemeParkCustomerReviewSerializer(serializers.ModelSerializer):
     
 
 class TopAttractionCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
     class Meta:
         model = TopAttractionCustomerReview
         fields = '__all__'
 
 
 class DesertSafariCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
     class Meta:
         model = DesertSafariCustomerReview
         fields = '__all__'
 
 
 class WaterParkCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
     class Meta:
         model = WaterParkCustomerReview
         fields = '__all__'
 
 
 class WaterActivityCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
     class Meta:
         model = WaterActivityCustomerReview
         fields = '__all__'
@@ -76,21 +76,21 @@ class AdventureTourCustomerReviewSerializer(serializers.ModelSerializer):
 
 
 class ComboTourCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
     class Meta:
         model = ComboTourCustomerReview
         fields = '__all__'
     
 
 class DubaiActivityCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
     class Meta:
         model = DubaiActivityCustomerReview
         fields = '__all__'
 
 
 class YachtCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
     class Meta:
         model = YachtCustomerReview
         fields = '__all__'
