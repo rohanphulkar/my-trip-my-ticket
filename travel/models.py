@@ -673,7 +673,6 @@ class RefundRequest(models.Model):
 class HotelCustomerReview(models.Model):
     hotel = models.ForeignKey('Hotel', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
@@ -684,7 +683,6 @@ class HotelCustomerReview(models.Model):
 class CarCustomerReview(models.Model):
     car = models.ForeignKey('Car', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
@@ -695,7 +693,6 @@ class CarCustomerReview(models.Model):
 class FlightCustomerReview(models.Model):
     flight = models.ForeignKey('Flight', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
@@ -706,7 +703,6 @@ class FlightCustomerReview(models.Model):
 class PackageCustomerReview(models.Model):
     package = models.ForeignKey('Package', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
@@ -717,7 +713,6 @@ class PackageCustomerReview(models.Model):
 class YachtCustomerReview(models.Model):
     yacht = models.ForeignKey('Yacht', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
@@ -728,7 +723,6 @@ class YachtCustomerReview(models.Model):
 class ThemeParkCustomerReview(models.Model):
     themepark = models.ForeignKey('ThemePark', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
@@ -739,7 +733,6 @@ class ThemeParkCustomerReview(models.Model):
 class TopAttractionCustomerReview(models.Model):
     topattraction = models.ForeignKey('TopAttraction', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
@@ -750,7 +743,6 @@ class TopAttractionCustomerReview(models.Model):
 class DesertSafariCustomerReview(models.Model):
     desertsafari = models.ForeignKey('DesertSafari', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
@@ -761,7 +753,6 @@ class DesertSafariCustomerReview(models.Model):
 class WaterParkCustomerReview(models.Model):
     waterpark = models.ForeignKey('WaterPark', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
@@ -772,7 +763,6 @@ class WaterParkCustomerReview(models.Model):
 class WaterActivityCustomerReview(models.Model):
     wateractivity = models.ForeignKey('WaterActivity', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
@@ -783,7 +773,6 @@ class WaterActivityCustomerReview(models.Model):
 class AdventureTourCustomerReview(models.Model):
     adventuretour = models.ForeignKey('AdventureTour', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
@@ -794,7 +783,6 @@ class AdventureTourCustomerReview(models.Model):
 class ComboTourCustomerReview(models.Model):
     combotour = models.ForeignKey('ComboTour', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
@@ -805,7 +793,6 @@ class ComboTourCustomerReview(models.Model):
 class DubaiActivityCustomerReview(models.Model):
     dubaiactivity = models.ForeignKey('DubaiActivity', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
-    review_title = models.CharField(max_length=200)
     review_text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     review_date = models.DateField(auto_now_add=True)
