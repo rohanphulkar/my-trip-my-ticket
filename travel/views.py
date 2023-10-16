@@ -1004,19 +1004,23 @@ class CustomerReviewView(APIView):
         'dubaiactivity': DubaiActivity,
         'yacht': Yacht,
         }
-        serializer_class = self.MODEL_SERIALIZER_MAPPING.get(model)
-        if not serializer_class:
-            return Response({'error': 'Invalid model'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer_class = self.MODEL_SERIALIZER_MAPPING.get(model)
+            if not serializer_class:
+                return Response({'error': 'Invalid model'}, status=status.HTTP_400_BAD_REQUEST)
 
-        obj = get_object_or_404(MODEL_MAPPING[model], id=object_id)
-        data = {**request.data, 'user': request.user.id}
-        data[model] = object_id
+            obj = get_object_or_404(MODEL_MAPPING[model], id=object_id)
+            data = {**request.data, 'user': request.user.id}
+            data[model] = object_id
 
-        serializer = serializer_class(data=data)
+            serializer = serializer_class(data=data)
 
-        if serializer.is_valid():
-            review = serializer.save()
-            setattr(review, model, obj)  # Dynamically set the model-specific field
-            review.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if serializer.is_valid():
+                review = serializer.save()
+                setattr(review, model, obj)  # Dynamically set the model-specific field
+                review.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            return Response({'error':str(e)},status=status.HTTP_400_BAD_REQUEST)
