@@ -6,10 +6,17 @@ from django.db.models import Sum
 
 # Customer Review Serializer
 class HotelCustomerReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = serializers.SerializerMethodField()
     class Meta:
         model = HotelCustomerReview
         fields = '__all__'
+
+    def get_user(self, obj):
+        user_data = UserSerializer(obj.user).data
+        return {
+            'email': user_data.get('email'),
+            'phone': user_data.get('phone')
+        }
 
 
 class CarCustomerReviewSerializer(serializers.ModelSerializer):
