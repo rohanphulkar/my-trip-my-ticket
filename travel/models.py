@@ -671,6 +671,7 @@ class RefundRequest(models.Model):
 
 # Cutomer Review Models
 class HotelCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     hotel = models.ForeignKey('Hotel', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
@@ -681,6 +682,7 @@ class HotelCustomerReview(models.Model):
         return f"Review for {self.hotel.name} by {self.user.email or self.user.phone}"
 
 class CarCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     car = models.ForeignKey('Car', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
@@ -691,6 +693,7 @@ class CarCustomerReview(models.Model):
         return f"Review for {self.car.name} by {self.user.email or self.user.phone}"
 
 class FlightCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     flight = models.ForeignKey('Flight', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
@@ -701,6 +704,7 @@ class FlightCustomerReview(models.Model):
         return f"Review for {self.flight.flight_number} by {self.user.email or self.user.phone}"
     
 class PackageCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     package = models.ForeignKey('Package', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
@@ -711,6 +715,7 @@ class PackageCustomerReview(models.Model):
         return f"Review for Package '{self.package.name}' by {self.user.email or self.user.phone}"
 
 class YachtCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     yacht = models.ForeignKey('Yacht', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
@@ -721,6 +726,7 @@ class YachtCustomerReview(models.Model):
         return f"Review for {self.yacht.name} by {self.user.email or self.user.phone}"
 
 class ThemeParkCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     themepark = models.ForeignKey('ThemePark', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
@@ -731,6 +737,7 @@ class ThemeParkCustomerReview(models.Model):
         return f"Review for Theme Park '{self.themepark.name}' by {self.user.email or self.user.phone}"
 
 class TopAttractionCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     topattraction = models.ForeignKey('TopAttraction', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
@@ -741,6 +748,7 @@ class TopAttractionCustomerReview(models.Model):
         return f"Review for Top Attraction '{self.topattraction.name}' by {self.user.email or self.user.phone}"
 
 class DesertSafariCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     desertsafari = models.ForeignKey('DesertSafari', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
@@ -751,6 +759,7 @@ class DesertSafariCustomerReview(models.Model):
         return f"Review for Desert Safari '{self.desertsafari.name}' by {self.user.email or self.user.phone}"
 
 class WaterParkCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     waterpark = models.ForeignKey('WaterPark', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
@@ -761,6 +770,7 @@ class WaterParkCustomerReview(models.Model):
         return f"Review for Water Park '{self.waterpark.name}' by {self.user.email or self.user.phone}"
 
 class WaterActivityCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     wateractivity = models.ForeignKey('WaterActivity', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
@@ -771,6 +781,7 @@ class WaterActivityCustomerReview(models.Model):
         return f"Review for Water Activity '{self.wateractivity.name}' by {self.user.email or self.user.phone}"
 
 class AdventureTourCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     adventuretour = models.ForeignKey('AdventureTour', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
@@ -781,6 +792,7 @@ class AdventureTourCustomerReview(models.Model):
         return f"Review for Adventure Tour '{self.adventuretour.name}' by {self.user.email or self.user.phone}"
 
 class ComboTourCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     combotour = models.ForeignKey('ComboTour', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
@@ -791,6 +803,7 @@ class ComboTourCustomerReview(models.Model):
         return f"Review for Combo Tour '{self.combotour.name}' by {self.user.email or self.user.phone}"
     
 class DubaiActivityCustomerReview(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     dubaiactivity = models.ForeignKey('DubaiActivity', on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)
     review_text = models.TextField()
