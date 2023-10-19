@@ -298,16 +298,7 @@ class CarSerializer(serializers.ModelSerializer):
             return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
         return None
 
-class AdImageSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField('get_image_url')
-    class Meta:
-        model = AdImage
-        fields = ['id','image']
-    
-    def get_image_url(self, obj):
-        if obj.image:
-            return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
-        return None
+
 
 
 # Flight Serializers
@@ -556,3 +547,23 @@ class DubaiActivityReservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = DubaiActivityReservation
         fields = '__all__'
+
+
+class BannerSerializer(serializers.ModelSerializer):
+    theme_park = ThemeParkSerializer(many=False, read_only=True)
+    top_attraction = TopAttractionSerializer(many=False, read_only=True)
+    desert_safari = DesertSafariSerializer(many=False, read_only=True)
+    water_park = WaterParkSerializer(many=False, read_only=True)
+    water_activity = WaterActivitySerializer(many=False, read_only=True)
+    adventure_tour = AdventureTourSerializer(many=False, read_only=True)
+    combo_tour = ComboTourSerializer(many=False, read_only=True)
+    dubai_activity = DubaiActivitySerializer(many=False, read_only=True)
+    image = serializers.SerializerMethodField('get_image_url')
+    class Meta:
+        model = Banner
+        fields = "__all__"
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
+        return None

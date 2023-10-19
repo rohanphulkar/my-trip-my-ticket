@@ -82,9 +82,7 @@ class CarDetailsView(generics.RetrieveAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
 
-class AdImageView(generics.ListAPIView):
-    queryset = AdImage.objects.all()
-    serializer_class = AdImageSerializer
+
 
 class AirportListView(generics.ListAPIView):
     queryset = Airport.objects.all()
@@ -967,64 +965,6 @@ class CustomerReviewView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class CustomerReviewView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-    
-
-#     MODEL_SERIALIZER_MAPPING = {
-#         'hotel': HotelCustomerReviewSerializer,
-#         'car': CarCustomerReviewSerializer,
-#         'flight': FlightCustomerReviewSerializer,
-#         'package': PackageCustomerReviewSerializer,
-#         'themepark': ThemeParkCustomerReviewSerializer,
-#         'topattraction': TopAttractionCustomerReviewSerializer,
-#         'desertsafari': DesertSafariCustomerReviewSerializer,
-#         'waterpark': WaterParkCustomerReviewSerializer,
-#         'wateractivity': WaterActivityCustomerReviewSerializer,
-#         'adventuretour': AdventureTourCustomerReviewSerializer,
-#         'combotour': ComboTourCustomerReviewSerializer,
-#         'dubaiactivity': DubaiActivityCustomerReviewSerializer,
-#         'yacht': YachtCustomerReviewSerializer,
-#     }
-
-#     def post(self, request, model, object_id):
-#         MODEL_MAPPING = {
-#         'hotel': Hotel,
-#         'car': Car,
-#         'flight': Flight,
-#         'package': Package,
-#         'themepark': ThemePark,
-#         'topattraction': TopAttraction,
-#         'desertsafari': DesertSafari,
-#         'waterpark': WaterPark,
-#         'wateractivity': WaterActivity,
-#         'adventuretour': AdventureTour,
-#         'combotour': ComboTour,
-#         'dubaiactivity': DubaiActivity,
-#         'yacht': Yacht,
-#         }
-#         try:
-#             serializer_class = self.MODEL_SERIALIZER_MAPPING.get(model)
-#             if not serializer_class:
-#                 return Response({'error': 'Invalid model'}, status=status.HTTP_400_BAD_REQUEST)
-
-#             obj = get_object_or_404(MODEL_MAPPING[model], id=object_id)
-#             try:
-#                 user = User.objects.get(id=request.user.id)
-#             except Exception as e:
-#                 return Response({'error':'user not found'},status=status.HTTP_404_NOT_FOUND)
-#             data = {**request.data, 'user': request.user}
-#             data[model] = object_id
-
-#             serializer = serializer_class(data=data)
-
-#             if serializer.is_valid():
-#                 review = serializer.save()
-#                 setattr(review, model, obj)  # Dynamically set the model-specific field
-#                 review.save()
-#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-#         except Exception as e:
-#             return Response({'error':str(e)},status=status.HTTP_400_BAD_REQUEST)
+class BannerListCreateView(generics.ListCreateAPIView):
+    queryset = Banner.objects.all()
+    serializer_class = BannerSerializer

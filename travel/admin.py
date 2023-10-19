@@ -44,9 +44,6 @@ class CarAdmin(admin.ModelAdmin):
     list_display = ('name', 'city', 'car_type')
     inlines = [CarImageAdmin]
 
-@admin.register(AdImage)
-class AdImageAdmin(admin.ModelAdmin):
-    pass
 
 @admin.register(CarType)
 class CarTypeAdmin(admin.ModelAdmin):
@@ -347,3 +344,10 @@ class DubaiActivityCustomerReviewAdmin(admin.ModelAdmin):
     list_display = ('dubaiactivity', 'user', 'rating', 'review_date')
     list_filter = ('rating', 'review_date')
     search_fields = ('dubaiactivity__name', 'user')
+
+
+@admin.register(Banner)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'image')
+    list_filter = ('theme_park', 'top_attraction', 'desert_safari', 'water_park', 'water_activity', 'adventure_tour', 'combo_tour', 'dubai_activity')
+    ordering = ('-id',)

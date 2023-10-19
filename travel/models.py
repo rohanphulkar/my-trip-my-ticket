@@ -140,9 +140,7 @@ class CarImage(models.Model):
         return f"{self.car.make} {self.car.model}"
 
 
-class AdImage(models.Model):
-    id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
-    image = models.ImageField(upload_to='ads/',storage=fs)
+
 
 
 # Airports
@@ -813,3 +811,18 @@ class DubaiActivityCustomerReview(models.Model):
     def __str__(self):
         return f"Review for Dubai Activity '{self.dubaiactivity.name}' by {self.user.email or self.user.phone}"
 
+
+class Banner(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    image = models.ImageField(upload_to="banner_images/",storage=fs)
+    theme_park = models.ForeignKey(ThemePark,on_delete=models.CASCADE,blank=True,null=True)
+    top_attraction = models.ForeignKey(TopAttraction,on_delete=models.CASCADE,blank=True,null=True)
+    desert_safari = models.ForeignKey(DesertSafari,on_delete=models.CASCADE,blank=True,null=True)
+    water_park = models.ForeignKey(WaterPark,on_delete=models.CASCADE,blank=True,null=True)
+    water_activity = models.ForeignKey(WaterActivity,on_delete=models.CASCADE,blank=True,null=True)
+    adventure_tour = models.ForeignKey(AdventureTour,on_delete=models.CASCADE,blank=True,null=True)
+    combo_tour = models.ForeignKey(ComboTour,on_delete=models.CASCADE,blank=True,null=True)
+    dubai_activity = models.ForeignKey(DubaiActivity,on_delete=models.CASCADE,blank=True,null=True)
+
+    def __str__(self):
+        return f"{self.id}"

@@ -1,7 +1,6 @@
 from django.urls import path
 from . import views
 urlpatterns = [
-    path('adimages/', views.AdImageView.as_view(), name='adimages'),
     path('bookings/', views.BookingListView.as_view(), name='booking-list'),
     path('bookings/user/', views.UserBookingsView.as_view(), name='user-bookings'),
     path('bookings/<pk>/', views.BookingDetailsView.as_view(), name='booking-detail'),
@@ -38,5 +37,6 @@ urlpatterns = [
     path('get_model_instances/', views.get_model_instances, name='get_model_instances'),
     path('forex/create/', views.ForexCreateView.as_view(), name='forex-create'),
     path("visa/", views.VisaCreateView.as_view(), name="visa"),
-    path("review/create/<model>/<object_id>/", views.CustomerReviewView.as_view(), name="customer_review")
+    path("review/create/<model>/<object_id>/", views.CustomerReviewView.as_view(), name="customer_review"),
+    path('banners/', views.BannerListCreateView.as_view(), name='banner_list'),
 ]
