@@ -39,4 +39,5 @@ urlpatterns = [
     path("visa/", views.VisaCreateView.as_view(), name="visa"),
     path("review/create/<model>/<object_id>/", views.CustomerReviewView.as_view(), name="customer_review"),
     path('banners/', views.BannerListCreateView.as_view(), name='banner_list'),
+    path('self-drive/', views.SelfDriveRentalList.as_view(), name='self-driverental-list'),
 ]

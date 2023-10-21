@@ -826,3 +826,21 @@ class Banner(models.Model):
 
     def __str__(self):
         return f"{self.id}"
+class SelfDriveRental(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    car = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+    email = models.EmailField(max_length=100, blank=True)
+    phone_number = models.CharField(max_length=20, blank=True)
+    from_date = models.DateField()
+    to_date = models.DateField()
+    driver_license_number = models.CharField(max_length=20)
+    from_location = models.CharField(max_length=255)
+    to_location = models.CharField(max_length=255)
+    notes = models.TextField(blank=True, null=True)
+
+    def total_rental_days(self):
+        return (self.to_date - self.from_date).days
+
+    def __str__(self):
+        return f"Self-Drive Rental by {self.email} - {self.car}"

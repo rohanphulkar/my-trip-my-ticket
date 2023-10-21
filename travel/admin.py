@@ -351,3 +351,9 @@ class BannerAdmin(admin.ModelAdmin):
     list_display = ('id', 'image')
     list_filter = ('theme_park', 'top_attraction', 'desert_safari', 'water_park', 'water_activity', 'adventure_tour', 'combo_tour', 'dubai_activity')
     ordering = ('-id',)
+
+@admin.register(SelfDriveRental)
+class SelfDriveRentalAdmin(admin.ModelAdmin):
+    list_display = ('id', 'car', 'name', 'email', 'phone_number', 'from_date', 'to_date', 'driver_license_number', 'from_location', 'to_location', 'notes', 'total_rental_days')
+    list_filter = ('car', 'from_date', 'to_date')
+    search_fields = ('car', 'name', 'email', 'driver_license_number')

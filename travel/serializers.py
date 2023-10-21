@@ -567,3 +567,9 @@ class BannerSerializer(serializers.ModelSerializer):
         if obj.image:
             return f"https://mytripmyticket.co.in/{obj.image.url.replace('/media/','')}"
         return None
+    
+class SelfDriveRentalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SelfDriveRental
+        fields = '__all__'
+

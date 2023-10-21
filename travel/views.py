@@ -968,3 +968,7 @@ class CustomerReviewView(APIView):
 class BannerListCreateView(generics.ListCreateAPIView):
     queryset = Banner.objects.all()
     serializer_class = BannerSerializer
+
+class SelfDriveRentalList(generics.ListCreateAPIView):
+    queryset = SelfDriveRental.objects.all()
+    serializer_class = SelfDriveRentalSerializer
