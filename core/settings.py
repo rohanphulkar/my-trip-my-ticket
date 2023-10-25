@@ -62,12 +62,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'core.urls'
 
-AUTH_USER_MODEL="accounts.User"
+AUTH_USER_MODEL = "accounts.User"
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR,'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -94,16 +94,15 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # }
 
 
-
 DATABASES = {
-  'default': {
-       'ENGINE': 'django.db.backends.mysql',
-       'NAME': config("DB_NAME"),
-       'USER':  config("DB_USER"),
-       'PASSWORD':  config("DB_PASSWORD"),
-       'HOST':  config("DB_HOST"),
-       'PORT':  config("DB_PORT"),
-   }
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config("DB_NAME"),
+        'USER':  config("DB_USER"),
+        'PASSWORD':  config("DB_PASSWORD"),
+        'HOST':  config("DB_HOST"),
+        'PORT':  config("DB_PORT"),
+    }
 }
 
 
@@ -151,10 +150,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
-MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-CORS_ALLOW_ALL_ORIGINS=True
+CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
 
@@ -162,15 +161,15 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-     'DEFAULT_PERMISSION_CLASSES':(
+    'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
 
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
- 
+
 }
 
-FRONTEND_URL=config('FRONTEND_URL')
+FRONTEND_URL = config('FRONTEND_URL')
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -183,15 +182,14 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
 LOGIN_REDIRECT_URL = '/'
 
-DEFAULT_FILE_STORAGE = 'storages.backends.ftp.FTPStorage'
-FTP_STORAGE_LOCATION = config("FTP_URL")
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=7)
 }
 
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:5173','http://localhost:8000','http://phoenixdev.online','https://phoenixdev.online']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5173', 'http://localhost:8000',
+                        'http://phoenixdev.online', 'https://phoenixdev.online']
 
 
 JAZZMIN_UI_TWEAKS = {
@@ -241,7 +239,7 @@ LOGGING = {
 }
 
 
-FROALA_EDITOR_PLUGINS = ('align', 'char_counter', 'code_beautifier' ,'code_view', 'colors', 'draggable', 'emoticons',
-          'entities', 'file', 'font_family', 'font_size', 'fullscreen', 'image_manager', 'image', 'inline_style',
-          'line_breaker', 'link', 'lists', 'paragraph_format', 'paragraph_style', 'quick_insert', 'quote', 'save', 'table',
-          'url', 'video')
+FROALA_EDITOR_PLUGINS = ('align', 'char_counter', 'code_beautifier', 'code_view', 'colors', 'draggable', 'emoticons',
+                         'entities', 'file', 'font_family', 'font_size', 'fullscreen', 'image_manager', 'image', 'inline_style',
+                         'line_breaker', 'link', 'lists', 'paragraph_format', 'paragraph_style', 'quick_insert', 'quote', 'save', 'table',
+                         'url', 'video')
