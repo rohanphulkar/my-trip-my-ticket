@@ -358,7 +358,7 @@ class TopAttractionImage(models.Model):
 
 class DesertSafari(Activities):
     location = models.CharField(max_length=100)
-    duration_hours = models.PositiveIntegerField(blank=True)
+    duration_hours = models.PositiveIntegerField(blank=True,null=True)
     schedule = models.TextField(blank=True)
     inclusions = models.TextField(blank=True)
     max_participants = models.PositiveIntegerField()
