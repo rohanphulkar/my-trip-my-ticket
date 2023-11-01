@@ -468,3 +468,13 @@ class SelfDriveRentalAdmin(admin.ModelAdmin):
                     'driver_license_number', 'from_location', 'to_location', 'notes', 'total_rental_days')
     list_filter = ('car', 'from_date', 'to_date')
     search_fields = ('car', 'name', 'email', 'driver_license_number')
+
+
+
+class CityTourImageInline(admin.TabularInline):
+    model = CityTourImage
+
+@admin.register(CityTour)
+class CityTourAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'price')
+    inlines = [CityTourImageInline]

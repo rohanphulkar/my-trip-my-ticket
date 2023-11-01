@@ -119,10 +119,6 @@ class Car(models.Model):
     model = models.CharField(max_length=50)
     car_type = models.ForeignKey(CarType, on_delete=models.CASCADE)
     seats = models.PositiveIntegerField()
-    transmission_type = models.CharField(max_length=50, choices=[(
-        'Automatic', 'Automatic'), ('Manual', 'Manual')], default="Automatic")
-    fuel_type = models.CharField(max_length=50, choices=[(
-        'Petrol', 'Petrol'), ('Diesel', 'Diesel'), ('Electric', 'Electric')], default="Petrol")
     ac = models.BooleanField()
     bags = models.BooleanField()
     image = models.ImageField(upload_to='cars/')
@@ -471,6 +467,25 @@ class DubaiActivityImage(models.Model):
     def __str__(self):
         return f"{self.dubai_activity.name}"
 
+
+class CityTour(Activities):
+    location = models.CharField(max_length=100)
+    duration_hours = models.PositiveIntegerField()
+    age_limit = models.PositiveIntegerField()
+    includes_meals = models.BooleanField(default=False)
+    schedule = models.TextField(blank=True)
+    special_requirements = models.TextField(blank=True)
+    max_participants = models.PositiveIntegerField()
+    equipment_provided = models.TextField(blank=True)
+    additional_info = models.TextField(blank=True)
+
+class CityTourImage(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    city_tour = models.ForeignKey(CityTour, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='city_tour_images/')
+
+    def __str__(self):
+        return f"{self.city_tour.name}"
 
 CATEGORIES = (
     ('top attraction', 'Top Attraction'),

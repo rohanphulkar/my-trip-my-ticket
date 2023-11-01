@@ -294,7 +294,7 @@ class CarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
         fields = ['id', 'name', 'address', 'country', 'state', 'city', 'pin', 'email', 'phone_number', 'origin_city', 'destination_city', 'make', 'model', 'car_type', 'seats',
-                  'transmission_type', 'fuel_type', 'ac', 'bags', 'image', 'price', 'tax_percent', 'tax_type', 'total_cars', 'available_cars', 'available_till', 'car_images', 'reviews']
+                   'ac', 'bags', 'image', 'price', 'tax_percent', 'tax_type', 'total_cars', 'available_cars', 'available_till', 'car_images', 'reviews']
 
     def get_car_images(self, obj):
         images = CarImage.objects.filter(car=obj.id)
@@ -624,6 +624,23 @@ class DubaiActivitySerializer(serializers.ModelSerializer):
     def get_images(self, obj):
         images = DubaiActivityImage.objects.filter(dubai_activity=obj.id)
         serializer = DubaiActivityImageSerializer(images, many=True)
+        return serializer.data
+    
+class CityTourImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CityTourImage
+        fields = ('image',)
+
+class CityTourSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField('get_images')
+
+    class Meta:
+        model = CityTour
+        fields = '__all__'
+    
+    def get_images(self, obj):
+        images = CityTourImage.objects.filter(city_tour=obj.id)
+        serializer = CityTourImageSerializer(images, many=True)
         return serializer.data
 
 
