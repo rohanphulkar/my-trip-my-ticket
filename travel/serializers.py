@@ -706,8 +706,18 @@ class BannerSerializer(serializers.ModelSerializer):
         model = Banner
         fields = "__all__"
 
+class SelfDriveRentalImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SelfDriveRentalImage
+        fields = "__all__"
 
 class SelfDriveRentalSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField('get_images')
     class Meta:
         model = SelfDriveRental
         fields = '__all__'
+    
+    def get_images(self, obj):
+        images = SelfDriveRentalImage.objects.filter(self_drive=obj.id)
+        serializer = SelfDriveRentalImageSerializer(images, many=True)
+        return serializer.data

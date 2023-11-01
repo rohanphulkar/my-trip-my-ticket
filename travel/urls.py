@@ -48,6 +48,7 @@ urlpatterns = [
     path("review/create/<model>/<object_id>/", views.CustomerReviewView.as_view(), name="customer_review"),
     path('banners/', views.BannerListCreateView.as_view(), name='banner_list'),
     path('self-drive/', views.SelfDriveRentalList.as_view(), name='self-driverental-list'),
+    path('self-drive/<uuid:pk>/', views.SelfDriveRentalDetails.as_view(), name='self-driverental-details'),
     path('city-tours/', views.CityTourList.as_view(), name='city-tour-list'),
     path('city-tours/<uuid:pk>/', views.CityTourDetail.as_view(), name='city-tour-detail'),
 ]

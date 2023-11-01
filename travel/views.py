@@ -1012,3 +1012,7 @@ class BannerListCreateView(generics.ListCreateAPIView):
 class SelfDriveRentalList(generics.ListCreateAPIView):
     queryset = SelfDriveRental.objects.all()
     serializer_class = SelfDriveRentalSerializer
+    
+class SelfDriveRentalDetails(generics.RetrieveAPIView):
+    queryset = SelfDriveRental.objects.all()
+    serializer_class = SelfDriveRentalSerializer
