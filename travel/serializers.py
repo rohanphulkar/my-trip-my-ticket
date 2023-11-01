@@ -294,7 +294,7 @@ class CarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
         fields = ['id', 'name', 'address', 'country', 'state', 'city', 'pin', 'email', 'phone_number', 'origin_city', 'destination_city', 'make', 'model', 'car_type', 'seats',
-                  'transmission_type', 'fuel_type', 'ac', 'bags', 'image', 'price', 'tax_percent', 'tax_type', 'total_cars', 'available_cars', 'available_till', 'car_images', 'reviews']
+                   'ac', 'bags', 'image', 'price', 'tax_percent', 'tax_type', 'total_cars', 'available_cars', 'available_till', 'car_images', 'reviews']
 
     def get_car_images(self, obj):
         images = CarImage.objects.filter(car=obj.id)

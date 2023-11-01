@@ -119,10 +119,6 @@ class Car(models.Model):
     model = models.CharField(max_length=50)
     car_type = models.ForeignKey(CarType, on_delete=models.CASCADE)
     seats = models.PositiveIntegerField()
-    transmission_type = models.CharField(max_length=50, choices=[(
-        'Automatic', 'Automatic'), ('Manual', 'Manual')], default="Automatic")
-    fuel_type = models.CharField(max_length=50, choices=[(
-        'Petrol', 'Petrol'), ('Diesel', 'Diesel'), ('Electric', 'Electric')], default="Petrol")
     ac = models.BooleanField()
     bags = models.BooleanField()
     image = models.ImageField(upload_to='cars/')

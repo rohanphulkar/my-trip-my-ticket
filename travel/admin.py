@@ -467,6 +467,7 @@ class SelfDriveRentalImageInline(admin.TabularInline):
 
 @admin.register(SelfDriveRental)
 class SelfDriveRentalAdmin(admin.ModelAdmin):
+
     list_display = ['name','year', 'make', 'model', 'is_available']
     list_filter = ['is_available']
     search_fields = ['year', 'make', 'model', 'registration_number']
@@ -482,6 +483,7 @@ class SelfDriveRentalAdmin(admin.ModelAdmin):
     def mark_unavailable(modeladmin, request, queryset):
         queryset.update(is_available=False)
     mark_unavailable.short_description = "Mark selected rentals as unavailable"
+
 
 
 
