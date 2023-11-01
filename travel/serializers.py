@@ -625,6 +625,23 @@ class DubaiActivitySerializer(serializers.ModelSerializer):
         images = DubaiActivityImage.objects.filter(dubai_activity=obj.id)
         serializer = DubaiActivityImageSerializer(images, many=True)
         return serializer.data
+    
+class CityTourImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CityTourImage
+        fields = ('image',)
+
+class CityTourSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField('get_images')
+
+    class Meta:
+        model = CityTour
+        fields = '__all__'
+    
+    def get_images(self, obj):
+        images = CityTourImage.objects.filter(city_tour=obj.id)
+        serializer = CityTourImageSerializer(images, many=True)
+        return serializer.data
 
 
 class ThemeParkReservationSerializer(serializers.ModelSerializer):
@@ -689,8 +706,18 @@ class BannerSerializer(serializers.ModelSerializer):
         model = Banner
         fields = "__all__"
 
+class SelfDriveRentalImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SelfDriveRentalImage
+        fields = "__all__"
 
 class SelfDriveRentalSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField('get_images')
     class Meta:
         model = SelfDriveRental
         fields = '__all__'
+    
+    def get_images(self, obj):
+        images = SelfDriveRentalImage.objects.filter(self_drive=obj.id)
+        serializer = SelfDriveRentalImageSerializer(images, many=True)
+        return serializer.data

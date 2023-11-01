@@ -170,6 +170,46 @@ class DubaiActivityList(generics.ListAPIView):
     serializer_class = DubaiActivitySerializer
 
 
+class ThemeParkDetail(generics.RetrieveAPIView):
+    queryset = ThemePark.objects.all()
+    serializer_class = ThemeParkSerializer
+
+class TopAttractionDetail(generics.RetrieveAPIView):
+    queryset = TopAttraction.objects.all()
+    serializer_class = TopAttractionSerializer
+
+class DesertSafariDetail(generics.RetrieveAPIView):
+    queryset = DesertSafari.objects.all()
+    serializer_class = DesertSafariSerializer
+
+class WaterParkDetail(generics.RetrieveAPIView):
+    queryset = WaterPark.objects.all()
+    serializer_class = WaterParkSerializer
+
+class WaterActivityDetail(generics.RetrieveAPIView):
+    queryset = WaterActivity.objects.all()
+    serializer_class = WaterActivitySerializer
+
+class AdventureTourDetail(generics.RetrieveAPIView):
+    queryset = AdventureTour.objects.all()
+    serializer_class = AdventureTourSerializer
+
+class ComboTourDetail(generics.RetrieveAPIView):
+    queryset = ComboTour.objects.all()
+    serializer_class = ComboTourSerializer
+
+class DubaiActivityDetail(generics.RetrieveAPIView):
+    queryset = DubaiActivity.objects.all()
+    serializer_class = DubaiActivitySerializer
+
+class CityTourList(generics.ListAPIView):
+    queryset = CityTour.objects.all()
+    serializer_class = CityTourSerializer
+
+class CityTourDetail(generics.RetrieveAPIView):
+    queryset = CityTour.objects.all()
+    serializer_class = CityTourSerializer
+
 class OfferListView(generics.ListAPIView):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
@@ -970,5 +1010,9 @@ class BannerListCreateView(generics.ListCreateAPIView):
     serializer_class = BannerSerializer
 
 class SelfDriveRentalList(generics.ListCreateAPIView):
+    queryset = SelfDriveRental.objects.all()
+    serializer_class = SelfDriveRentalSerializer
+    
+class SelfDriveRentalDetails(generics.RetrieveAPIView):
     queryset = SelfDriveRental.objects.all()
     serializer_class = SelfDriveRentalSerializer

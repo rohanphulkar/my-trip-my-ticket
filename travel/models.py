@@ -472,6 +472,25 @@ class DubaiActivityImage(models.Model):
         return f"{self.dubai_activity.name}"
 
 
+class CityTour(Activities):
+    location = models.CharField(max_length=100)
+    duration_hours = models.PositiveIntegerField()
+    age_limit = models.PositiveIntegerField()
+    includes_meals = models.BooleanField(default=False)
+    schedule = models.TextField(blank=True)
+    special_requirements = models.TextField(blank=True)
+    max_participants = models.PositiveIntegerField()
+    equipment_provided = models.TextField(blank=True)
+    additional_info = models.TextField(blank=True)
+
+class CityTourImage(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    city_tour = models.ForeignKey(CityTour, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='city_tour_images/')
+
+    def __str__(self):
+        return f"{self.city_tour.name}"
+
 CATEGORIES = (
     ('top attraction', 'Top Attraction'),
     ('desert safari', 'Desert Safari'),
@@ -1022,19 +1041,24 @@ class Banner(models.Model):
 
 class SelfDriveRental(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    car = models.CharField(max_length=100)
-    name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100, blank=True)
-    phone_number = models.CharField(max_length=20, blank=True)
-    from_date = models.DateField()
-    to_date = models.DateField()
-    driver_license_number = models.CharField(max_length=20)
-    from_location = models.CharField(max_length=255)
-    to_location = models.CharField(max_length=255)
-    notes = models.TextField(blank=True, null=True)
-
-    def total_rental_days(self):
-        return (self.to_date - self.from_date).days
+    name = models.CharField(max_length=100,null=True,blank=True)
+    make = models.CharField(max_length=100,null=True,blank=True)
+    model = models.CharField(max_length=100,null=True,blank=True)
+    year = models.IntegerField(null=True,blank=True)
+    image = models.ImageField(upload_to="self_drive_images/")
+    registration_number = models.CharField(max_length=20, unique=True,null=True,blank=True)
+    mileage = models.PositiveIntegerField(null=True,blank=True)
+    rate_per_day = models.DecimalField(max_digits=8, decimal_places=2,null=True,blank=True)
+    is_available = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Self-Drive Rental by {self.email} - {self.car}"
+        return f'{self.year} {self.make} {self.model}'
+
+
+class SelfDriveRentalImage(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    self_drive = models.ForeignKey(SelfDriveRental, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='self_drive_images/')
+
+    def __str__(self):
+        return f"{self.self_drive.make}"

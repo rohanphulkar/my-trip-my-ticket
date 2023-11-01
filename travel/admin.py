@@ -462,9 +462,34 @@ class BannerAdmin(admin.ModelAdmin):
     ordering = ('-id',)
 
 
+class SelfDriveRentalImageInline(admin.TabularInline):
+    model = SelfDriveRentalImage
+
 @admin.register(SelfDriveRental)
 class SelfDriveRentalAdmin(admin.ModelAdmin):
-    list_display = ('id', 'car', 'name', 'email', 'phone_number', 'from_date', 'to_date',
-                    'driver_license_number', 'from_location', 'to_location', 'notes', 'total_rental_days')
-    list_filter = ('car', 'from_date', 'to_date')
-    search_fields = ('car', 'name', 'email', 'driver_license_number')
+    list_display = ['name','year', 'make', 'model', 'is_available']
+    list_filter = ['is_available']
+    search_fields = ['year', 'make', 'model', 'registration_number']
+    list_editable = ['is_available']
+    ordering = ['name','year', 'make', 'model']
+    actions = ["mark_available", "mark_unavailable"]
+    inlines = [SelfDriveRentalImageInline]
+
+    def mark_available(modeladmin, request, queryset):
+        queryset.update(is_available=True)
+    mark_available.short_description = "Mark selected rentals as available"
+
+    def mark_unavailable(modeladmin, request, queryset):
+        queryset.update(is_available=False)
+    mark_unavailable.short_description = "Mark selected rentals as unavailable"
+
+
+
+
+class CityTourImageInline(admin.TabularInline):
+    model = CityTourImage
+
+@admin.register(CityTour)
+class CityTourAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'price')
+    inlines = [CityTourImageInline]
