@@ -465,14 +465,15 @@ class BannerAdmin(admin.ModelAdmin):
 class SelfDriveRentalImageInline(admin.TabularInline):
     model = SelfDriveRentalImage
 
+
 @admin.register(SelfDriveRental)
 class SelfDriveRentalAdmin(admin.ModelAdmin):
 
-    list_display = ['name','year', 'make', 'model', 'is_available']
+    list_display = ['name', 'year', 'make', 'model', 'is_available']
     list_filter = ['is_available']
     search_fields = ['year', 'make', 'model', 'registration_number']
     list_editable = ['is_available']
-    ordering = ['name','year', 'make', 'model']
+    ordering = ['name', 'year', 'make', 'model']
     actions = ["mark_available", "mark_unavailable"]
     inlines = [SelfDriveRentalImageInline]
 
@@ -485,13 +486,61 @@ class SelfDriveRentalAdmin(admin.ModelAdmin):
     mark_unavailable.short_description = "Mark selected rentals as unavailable"
 
 
-
-
-
 class CityTourImageInline(admin.TabularInline):
     model = CityTourImage
+
 
 @admin.register(CityTour)
 class CityTourAdmin(admin.ModelAdmin):
     list_display = ('name', 'location', 'price')
     inlines = [CityTourImageInline]
+
+
+class SightseeingImageInline(admin.StackedInline):
+    model = SightseeingImage
+    extra = 1
+
+
+@admin.register(Sightseeing)
+class SightseeingAdmin(admin.ModelAdmin):
+    inlines = [SightseeingImageInline]
+
+
+class DhowCruiseDubaiImageInline(admin.StackedInline):
+    model = DhowCruiseDubaiImage
+    extra = 1
+
+
+@admin.register(DhowCruiseDubai)
+class DhowCruiseDubaiAdmin(admin.ModelAdmin):
+    inlines = [DhowCruiseDubaiImageInline]
+
+
+class GlampingToursImageInline(admin.StackedInline):
+    model = GlampingToursImage
+    extra = 1
+
+
+@admin.register(GlampingTours)
+class GlampingToursAdmin(admin.ModelAdmin):
+    inlines = [GlampingToursImageInline]
+
+
+class BurjKhalifaToursImageInline(admin.StackedInline):
+    model = BurjKhalifaToursImage
+    extra = 1
+
+
+@admin.register(BurjKhalifaTours)
+class BurjKhalifaToursAdmin(admin.ModelAdmin):
+    inlines = [BurjKhalifaToursImageInline]
+
+
+class SkyAdventuresImageInline(admin.StackedInline):
+    model = SkyAdventuresImage
+    extra = 1
+
+
+@admin.register(SkyAdventures)
+class SkyAdventuresAdmin(admin.ModelAdmin):
+    inlines = [SkyAdventuresImageInline]

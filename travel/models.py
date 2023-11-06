@@ -354,7 +354,7 @@ class TopAttractionImage(models.Model):
 
 class DesertSafari(Activities):
     location = models.CharField(max_length=100)
-    duration_hours = models.PositiveIntegerField(blank=True,null=True)
+    duration_hours = models.PositiveIntegerField(blank=True, null=True)
     schedule = models.TextField(blank=True)
     inclusions = models.TextField(blank=True)
     max_participants = models.PositiveIntegerField()
@@ -479,6 +479,7 @@ class CityTour(Activities):
     equipment_provided = models.TextField(blank=True)
     additional_info = models.TextField(blank=True)
 
+
 class CityTourImage(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     city_tour = models.ForeignKey(CityTour, on_delete=models.CASCADE)
@@ -486,6 +487,122 @@ class CityTourImage(models.Model):
 
     def __str__(self):
         return f"{self.city_tour.name}"
+
+
+class Sightseeing(Activities):
+    location = models.CharField(max_length=100)
+    duration_hours = models.PositiveIntegerField(blank=True, null=True)
+    landmarks = models.TextField(blank=True)
+    guide_available = models.BooleanField(default=False)
+    transportation_included = models.BooleanField(default=False)
+    ticket_price = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True)
+    operating_season = models.CharField(max_length=100, blank=True)
+    highlights = models.TextField(blank=True)
+    inclusions = models.TextField(blank=True)
+
+
+class SightseeingImage(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    sightseeing = models.ForeignKey(Sightseeing, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='sightseeing_images/')
+
+    def __str__(self):
+        return f"{self.sightseeing.name}"
+
+
+class DhowCruiseDubai(Activities):
+    location = models.CharField(max_length=100)
+    duration_hours = models.PositiveIntegerField(blank=True, null=True)
+    cruise_type = models.CharField(max_length=100, blank=True)
+    entertainment_included = models.TextField(blank=True)
+    dining_options = models.TextField(blank=True)
+    capacity = models.PositiveIntegerField()
+    reservations_required = models.BooleanField(default=False)
+    departure_schedule = models.CharField(max_length=100, blank=True)
+    special_events = models.TextField(blank=True)
+    inclusions = models.TextField(blank=True)
+
+
+class DhowCruiseDubaiImage(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    dhow_cruise_dubai = models.ForeignKey(
+        DhowCruiseDubai, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='dhow_cruise_dubai_images/')
+
+    def __str__(self):
+        return f"{self.dhow_cruise_dubai.name}"
+
+
+class GlampingTours(Activities):
+    location = models.CharField(max_length=100)
+    duration_nights = models.PositiveIntegerField(blank=True, null=True)
+    accommodation_type = models.CharField(max_length=100, blank=True)
+    activities_included = models.TextField(blank=True)
+    camping_guide = models.BooleanField(default=False)
+    all_inclusive = models.BooleanField(default=False)
+    package_price = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True)
+    amenities = models.TextField(blank=True)
+    restrictions = models.TextField(blank=True)
+    inclusions = models.TextField(blank=True)
+
+
+class GlampingToursImage(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    glamping_tours = models.ForeignKey(GlampingTours, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='glamping_tours_images/')
+
+    def __str(self):
+        return f"{self.glamping_tours.name}"
+
+
+class BurjKhalifaTours(Activities):
+    observation_deck = models.CharField(max_length=100)
+    ticket_options = models.TextField(blank=True)
+    guided_tours = models.TextField(blank=True)
+    special_events = models.TextField(blank=True)
+    height = models.PositiveIntegerField()
+    booking_required = models.BooleanField(default=True)
+    available_dates = models.CharField(max_length=100, blank=True)
+    time_slots = models.TextField(blank=True)
+    admission_fee = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True)
+    inclusions = models.TextField(blank=True)
+
+
+class BurjKhalifaToursImage(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    burj_khalifa_tours = models.ForeignKey(
+        BurjKhalifaTours, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='burj_khalifa_tours_images/')
+
+    def __str__(self):
+        return f"{self.burj_khalifa_tours.name}"
+
+
+class SkyAdventures(Activities):
+    location = models.CharField(max_length=100)
+    adventure_type = models.CharField(max_length=100, blank=True)
+    equipment_rental = models.TextField(blank=True)
+    safety_guidelines = models.TextField(blank=True)
+    weight_limit = models.PositiveIntegerField(blank=True, null=True)
+    age_limit = models.PositiveIntegerField(blank=True, null=True)
+    available_dates = models.CharField(max_length=100, blank=True)
+    booking_options = models.TextField(blank=True)
+    adrenaline_level = models.PositiveIntegerField(blank=True, null=True)
+    group_size = models.PositiveIntegerField(blank=True, null=True)
+    inclusions = models.TextField(blank=True)
+
+
+class SkyAdventuresImage(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    sky_adventures = models.ForeignKey(SkyAdventures, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='sky_adventures_images/')
+
+    def __str__(self):
+        return f"{self.sky_adventures.name}"
+
 
 CATEGORIES = (
     ('top attraction', 'Top Attraction'),
@@ -1037,14 +1154,16 @@ class Banner(models.Model):
 
 class SelfDriveRental(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    name = models.CharField(max_length=100,null=True,blank=True)
-    make = models.CharField(max_length=100,null=True,blank=True)
-    model = models.CharField(max_length=100,null=True,blank=True)
-    year = models.IntegerField(null=True,blank=True)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    make = models.CharField(max_length=100, null=True, blank=True)
+    model = models.CharField(max_length=100, null=True, blank=True)
+    year = models.IntegerField(null=True, blank=True)
     image = models.ImageField(upload_to="self_drive_images/")
-    registration_number = models.CharField(max_length=20, unique=True,null=True,blank=True)
-    mileage = models.PositiveIntegerField(null=True,blank=True)
-    rate_per_day = models.DecimalField(max_digits=8, decimal_places=2,null=True,blank=True)
+    registration_number = models.CharField(
+        max_length=20, unique=True, null=True, blank=True)
+    mileage = models.PositiveIntegerField(null=True, blank=True)
+    rate_per_day = models.DecimalField(
+        max_digits=8, decimal_places=2, null=True, blank=True)
     is_available = models.BooleanField(default=True)
 
     def __str__(self):

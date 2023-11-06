@@ -294,7 +294,7 @@ class CarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
         fields = ['id', 'name', 'address', 'country', 'state', 'city', 'pin', 'email', 'phone_number', 'origin_city', 'destination_city', 'make', 'model', 'car_type', 'seats',
-                   'ac', 'bags', 'image', 'price', 'tax_percent', 'tax_type', 'total_cars', 'available_cars', 'available_till', 'car_images', 'reviews']
+                  'ac', 'bags', 'image', 'price', 'tax_percent', 'tax_type', 'total_cars', 'available_cars', 'available_till', 'car_images', 'reviews']
 
     def get_car_images(self, obj):
         images = CarImage.objects.filter(car=obj.id)
@@ -625,11 +625,13 @@ class DubaiActivitySerializer(serializers.ModelSerializer):
         images = DubaiActivityImage.objects.filter(dubai_activity=obj.id)
         serializer = DubaiActivityImageSerializer(images, many=True)
         return serializer.data
-    
+
+
 class CityTourImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = CityTourImage
         fields = ('image',)
+
 
 class CityTourSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField('get_images')
@@ -637,10 +639,107 @@ class CityTourSerializer(serializers.ModelSerializer):
     class Meta:
         model = CityTour
         fields = '__all__'
-    
+
     def get_images(self, obj):
         images = CityTourImage.objects.filter(city_tour=obj.id)
         serializer = CityTourImageSerializer(images, many=True)
+        return serializer.data
+
+
+class SightSeeingImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SightseeingImage
+        fields = "__all__"
+
+
+class SightSeeingSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField('get_images')
+
+    class Meta:
+        model = Sightseeing
+        fields = "__all__"
+
+    def get_images(self, obj):
+        images = SightseeingImage.objects.filter(sightseeing=obj.id)
+        serializer = SightSeeingImageSerializer(images, many=True)
+        return serializer.data
+
+
+class DhowCruiseDubaiImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DhowCruiseDubaiImage
+        fields = "__all__"
+
+
+class DhowCruiseDubaiSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField('get_images')
+
+    class Meta:
+        model = DhowCruiseDubai
+        fields = "__all__"
+
+    def get_images(self, obj):
+        images = DhowCruiseDubaiImage.objects.filter(dhow_cruise_dubai=obj.id)
+        serializer = DhowCruiseDubaiImageSerializer(images, many=True)
+        return serializer.data
+
+
+class GlampingTourImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GlampingToursImage
+        fields = "__all__"
+
+
+class GlampingTourSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField('get_images')
+
+    class Meta:
+        model = GlampingTours
+        fields = "__all__"
+
+    def get_images(self, obj):
+        images = GlampingToursImage.objects.filter(glamping_tours=obj.id)
+        serializer = GlampingTourImageSerializer(images, many=True)
+        return serializer.data
+
+
+class BurjKhalifaToursImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BurjKhalifaToursImage
+        fields = "__all__"
+
+
+class BurjKhalifaToursSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField('get_images')
+
+    class Meta:
+        model = BurjKhalifaTours
+        fields = "__all__"
+
+    def get_images(self, obj):
+        images = BurjKhalifaToursImage.objects.filter(
+            burj_khalifa_tours=obj.id)
+        serializer = BurjKhalifaToursImageSerializer(images, many=True)
+        return serializer.data
+
+
+class SkyAdventuresImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SkyAdventuresImage
+        fields = "__all__"
+
+
+class SkyAdventuresSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField('get_images')
+
+    class Meta:
+        model = SkyAdventures
+        fields = "__all__"
+
+    def get_images(self, obj):
+        images = SkyAdventuresImage.objects.filter(
+            sky_adventures=obj.id)
+        serializer = SkyAdventuresImageSerializer(images, many=True)
         return serializer.data
 
 
@@ -706,17 +805,20 @@ class BannerSerializer(serializers.ModelSerializer):
         model = Banner
         fields = "__all__"
 
+
 class SelfDriveRentalImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = SelfDriveRentalImage
         fields = "__all__"
 
+
 class SelfDriveRentalSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField('get_images')
+
     class Meta:
         model = SelfDriveRental
         fields = '__all__'
-    
+
     def get_images(self, obj):
         images = SelfDriveRentalImage.objects.filter(self_drive=obj.id)
         serializer = SelfDriveRentalImageSerializer(images, many=True)
