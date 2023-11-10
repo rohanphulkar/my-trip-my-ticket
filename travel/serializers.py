@@ -294,7 +294,7 @@ class CarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
         fields = ['id', 'name', 'address', 'country', 'state', 'city', 'pin', 'email', 'phone_number', 'origin_city', 'destination_city', 'make', 'model', 'car_type', 'seats',
-                  'ac', 'bags', 'image', 'price', 'tax_percent', 'tax_type', 'total_cars', 'available_cars', 'available_till', 'car_images', 'reviews']
+                  'image', 'price', 'tax_percent', 'tax_type', 'total_cars', 'available_cars', 'available_till', 'car_images', 'reviews']
 
     def get_car_images(self, obj):
         images = CarImage.objects.filter(car=obj.id)
@@ -341,15 +341,23 @@ class BusAmenitySerializer(serializers.ModelSerializer):
         model = BusAmenity
         fields = '__all__'
 
+class BusImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BusImage
+        fields = "__all__"
 
 class BusSerializer(serializers.ModelSerializer):
     amenities = BusAmenitySerializer(many=True, read_only=True)
-
+    images = serializers.SerializerMethodField('get_images')
     class Meta:
         model = Bus
-        fields = ['id', 'bus_number', 'bus_type', 'operator', 'departure_station', 'arrival_station', 'departure_date', 'departure_time', 'arrival_date',
+        fields = ['id','name','images','image' ,'bus_number', 'bus_type', 'operator', 'departure_station', 'arrival_station', 'departure_date', 'departure_time', 'arrival_date',
                   'arrival_time', 'duration', 'price', 'total_seats', 'available_seats', 'amenities', 'wifi_available', 'power_outlets_available', 'refreshments_served']
-
+    
+    def get_images(self, obj):
+        images = BusImage.objects.filter(bus=obj.id)
+        serializer = BusImageSerializer(images, many=True)
+        return serializer.data
 
 class OfferSerializer(serializers.ModelSerializer):
 
@@ -822,4 +830,22 @@ class SelfDriveRentalSerializer(serializers.ModelSerializer):
     def get_images(self, obj):
         images = SelfDriveRentalImage.objects.filter(self_drive=obj.id)
         serializer = SelfDriveRentalImageSerializer(images, many=True)
+        return serializer.data
+
+
+class SeaAdventureImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SeaAdventureImage
+        fields = ('id', 'sea_adventure', 'image')
+
+class SeaAdventureSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField('get_images')
+    class Meta:
+        model = SeaAdventure
+        fields = "__all__"
+
+    def get_images(self, obj):
+        images = SeaAdventureImage.objects.filter(
+            sea_adventure=obj.id)
+        serializer = SeaAdventureImageSerializer(images, many=True)
         return serializer.data

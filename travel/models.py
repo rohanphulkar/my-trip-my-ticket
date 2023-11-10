@@ -119,8 +119,6 @@ class Car(models.Model):
     model = models.CharField(max_length=50)
     car_type = models.ForeignKey(CarType, on_delete=models.CASCADE)
     seats = models.PositiveIntegerField()
-    ac = models.BooleanField()
-    bags = models.BooleanField()
     image = models.ImageField(upload_to='cars/')
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     tax_percent = models.DecimalField(max_digits=5, decimal_places=2)
@@ -210,6 +208,8 @@ class FlightAmenity(models.Model):
 
 class Bus(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    name = models.CharField(max_length=255,null=True,blank=True)
+    image = models.ImageField(upload_to='bus_images/',null=True,blank=True)
     bus_number = models.CharField(max_length=20)
     bus_type = models.CharField(max_length=20)
     operator = models.CharField(max_length=50)
@@ -233,6 +233,14 @@ class Bus(models.Model):
 
     class Meta:
         verbose_name_plural = "Buses"
+
+class BusImage(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    bus  = models.ForeignKey(Bus, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='bus_images/')
+
+    def __str__(self):
+        return f"{self.bus.name}"
 
 
 class BusAmenity(models.Model):
@@ -602,6 +610,30 @@ class SkyAdventuresImage(models.Model):
 
     def __str__(self):
         return f"{self.sky_adventures.name}"
+
+class SeaAdventure(Activities):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    location = models.CharField(max_length=100)
+    duration_hours = models.PositiveIntegerField(blank=True, null=True)
+    adventure_type = models.CharField(max_length=100, blank=True)
+    equipment_rental = models.TextField(blank=True)
+    safety_guidelines = models.TextField(blank=True)
+    weight_limit = models.PositiveIntegerField(blank=True, null=True)
+    age_limit = models.PositiveIntegerField(blank=True, null=True)
+    available_dates = models.CharField(max_length=100, blank=True)
+    booking_options = models.TextField(blank=True)
+    inclusions = models.TextField(blank=True)
+
+
+class SeaAdventureImage(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    sea_adventure = models.ForeignKey(SeaAdventure, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='sea_adventure_images/')
+
+    def __str__(self):
+        return f"{self.sea_adventure.name}"
+
+
 
 
 CATEGORIES = (

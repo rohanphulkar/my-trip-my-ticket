@@ -43,8 +43,6 @@ class HotelFilter(django_filters.FilterSet):
 class CarFilter(django_filters.FilterSet):
     car_type = django_filters.CharFilter(field_name='car_type__type', lookup_expr='iexact')
     seats = django_filters.RangeFilter(field_name='seats')
-    ac = django_filters.BooleanFilter(field_name='ac')
-    bags = django_filters.BooleanFilter(field_name='bags')
     price = django_filters.RangeFilter(field_name='price')
     origin_city = django_filters.CharFilter(field_name='origin_city', lookup_expr='iexact')
     destination_city = django_filters.CharFilter(field_name='destination_city', lookup_expr='iexact')

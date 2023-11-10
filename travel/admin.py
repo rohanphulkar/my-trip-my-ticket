@@ -81,13 +81,15 @@ class FlightAmenityAdmin(admin.ModelAdmin):
 admin.site.register(BusAmenity)
 
 
+class BusImageInline(admin.StackedInline):
+    model = BusImage
+    extra = 1
+
+
 @admin.register(Bus)
 class BusAdmin(admin.ModelAdmin):
-    list_display = ('bus_number', 'operator', 'departure_station',
-                    'arrival_station', 'departure_time', 'arrival_time', 'available_seats')
-    list_filter = ('operator', 'departure_station', 'arrival_station')
-    search_fields = ('bus_number', 'operator',
-                     'departure_station', 'arrival_station')
+    inlines = [BusImageInline]
+
 
 
 @admin.register(Offer)
@@ -544,3 +546,13 @@ class SkyAdventuresImageInline(admin.StackedInline):
 @admin.register(SkyAdventures)
 class SkyAdventuresAdmin(admin.ModelAdmin):
     inlines = [SkyAdventuresImageInline]
+
+
+
+class SeaAdventureImageInline(admin.StackedInline):
+    model = SeaAdventureImage
+    extra = 1
+
+@admin.register(SeaAdventure)
+class SeaAdventureAdmin(admin.ModelAdmin):
+    inlines = [SeaAdventureImageInline]

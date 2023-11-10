@@ -96,4 +96,7 @@ urlpatterns = [
          name='skyadventures-list'),
     path('skyadventures/<uuid:pk>/', views.SkyAdventuresDetail.as_view(),
          name='skyadventures-detail'),
+    path('seaadventures/', views.SeaAdventureList.as_view(), name='seaadventure-list'),
+    path('seaadventures/<uuid:pk>/', views.SeaAdventureDetail.as_view(), name='seaadventure-detail'),
+    path("send-hotel-query/", views.HotelQueryView.as_view(), name="hotel_query")
 ]

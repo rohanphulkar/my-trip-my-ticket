@@ -1145,3 +1145,36 @@ class SkyAdventuresList(generics.ListAPIView):
 class SkyAdventuresDetail(generics.RetrieveAPIView):
     queryset = SkyAdventures.objects.all()
     serializer_class = SkyAdventuresSerializer
+
+
+class SeaAdventureList(generics.ListAPIView):
+    queryset = SeaAdventure.objects.all()
+    serializer_class = SeaAdventureSerializer
+
+class SeaAdventureDetail(generics.RetrieveAPIView):
+    queryset = SeaAdventure.objects.all()
+    serializer_class = SeaAdventureSerializer
+
+
+class HotelQueryView(APIView):
+    def post(self, request):
+        try:
+            checkin = request.data.get('checkin', '')
+            checkout = request.data.get('checkout', '')
+            guests = request.data.get('guests', '')
+            rooms = request.data.get('rooms', '')
+            name = request.data.get('name', '')
+            email = request.data.get('email', '')
+            phone = request.data.get('phone', '')
+            hotel_name = request.data.get('hotel_name', '')
+
+            subject = 'Hotel Booking Inquiry'
+            message = f'Hotel Name: {hotel_name}\nCheck-In: {checkin}\nCheck-Out: {checkout}\nGuests: {guests}\nRooms: {rooms}\nName: {name}\nEmail: {email}\nPhone: {phone}'
+
+            send_mail(subject, message, settings.EMAIL_HOST_USER, [
+                config('RECIPIENT_ADDRESS')], fail_silently=False)
+
+            return Response({"message": "Email sent successfully"}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
