@@ -934,6 +934,7 @@ class Forex(models.Model):
 class Visa(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     name = models.CharField(max_length=100, default="")
+    phone = models.CharField(max_length=100,default="")
     email = models.EmailField(max_length=100, default="")
     country = models.CharField(max_length=100)
     visa_type = models.CharField(max_length=100)

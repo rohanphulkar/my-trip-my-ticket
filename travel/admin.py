@@ -123,7 +123,7 @@ class ForexAdmin(admin.ModelAdmin):
 
 @admin.register(Visa)
 class VisaAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'country', 'visa_type', 'traveller')
+    list_display = ('name','phone', 'email', 'country', 'visa_type', 'traveller')
 
 
 @admin.register(HotelReservation)

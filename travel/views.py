@@ -1178,3 +1178,29 @@ class HotelQueryView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FlightQueryView(APIView):
+    def post(self, request):
+        try:
+            flight_id = request.data.get('flight_id', '')
+            passengers = request.data.get('passengers', '')
+            name = request.data.get('name', '')
+            email = request.data.get('email', '')
+            phone = request.data.get('phone', '')
+            departure = request.data.get('departure')
+            city = request.data.get('city')
+
+            flight_obj = get_object_or_404(Flight, id=flight_id)
+            flight = FlightSerializer(flight_obj)
+
+            subject = 'Flight Booking Inquiry'
+            message = f'Flight Name: {flight.data.name}\nFlight Number: {flight.data.number}\nPassengers: {passengers}\City: {city}\nDeparture Date: {departure}\nName: {name}\nEmail: {email}\nPhone: {phone}'
+
+            send_mail(subject, message, settings.EMAIL_HOST_USER, [
+                config('RECIPIENT_ADDRESS')], fail_silently=False)
+
+            return Response({"message": "Email sent successfully"}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

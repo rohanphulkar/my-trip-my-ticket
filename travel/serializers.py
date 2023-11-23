@@ -472,7 +472,7 @@ class ForexCreateSerializer(serializers.ModelSerializer):
 class VisaCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Visa
-        fields = ['name', 'email', 'country', 'visa_type', 'traveller']
+        fields = ['name','phone' ,'email', 'country', 'visa_type', 'traveller']
 
 
 class ThemeParkImageSerializer(serializers.ModelSerializer):

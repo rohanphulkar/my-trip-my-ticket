@@ -14,7 +14,7 @@ urlpatterns = [
     path('airports/<int:pk>/', views.AirportDetailsView.as_view(),
          name='airport-detail'),
     path('flights/', views.FlightListView.as_view(), name='flight-list'),
-    path('flights/<int:pk>/', views.FlightDetailsView.as_view(), name='flight-detail'),
+    path('flights/<uuid:pk>/', views.FlightDetailsView.as_view(), name='flight-detail'),
     path('buses/', views.BusListView.as_view(), name='bus-list'),
     path('buses/<uuid:pk>/', views.BusDetailsView.as_view(), name='bus-detail'),
     path('yachts/', views.YachtList.as_view(), name='yacht-list'),
@@ -98,5 +98,6 @@ urlpatterns = [
          name='skyadventures-detail'),
     path('seaadventures/', views.SeaAdventureList.as_view(), name='seaadventure-list'),
     path('seaadventures/<uuid:pk>/', views.SeaAdventureDetail.as_view(), name='seaadventure-detail'),
-    path("send-hotel-query/", views.HotelQueryView.as_view(), name="hotel_query")
+    path("send-hotel-query/", views.HotelQueryView.as_view(), name="hotel_query"),
+    path('send-flight-query/', views.FlightQueryView.as_view(), name='flight_query'),
 ]
